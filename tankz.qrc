@@ -1,1 +1,26 @@
-<RCC/>
+<RCC>
+    <qresource prefix="/image">
+        <file>ui/res/brick.png</file>
+        <file>ui/res/deadflag.png</file>
+        <file>ui/res/eagle.png</file>
+        <file>ui/res/forest.png</file>
+        <file>ui/res/iron.png</file>
+        <file>ui/res/steel.png</file>
+        <file>ui/res/tank_armored.png</file>
+        <file>ui/res/tank_basic.png</file>
+        <file>ui/res/tank_fast.png</file>
+        <file>ui/res/tank_player.png</file>
+        <file>ui/res/small_brick.png</file>
+        <file>ui/res/small_forest.png</file>
+        <file>ui/res/small_iron.png</file>
+        <file>ui/res/small_steel.png</file>
+    </qresource>
+    <qresource prefix="/qml">
+        <file>ui/game.qml</file>
+        <file>ui/GameScene.qml</file>
+        <file>ui/Cell.qml</file>
+    </qresource>
+    <qresource prefix="/data">
+        <file>level.dat</file>
+    </qresource>
+</RCC>
