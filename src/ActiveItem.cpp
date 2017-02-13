@@ -3,6 +3,7 @@
 ActiveItem::ActiveItem(QObject* parent, int rotation, ActiveItem::ActiveItemType type) : Entity(parent), _type(type), _frozen(false)
 {
     setRotation (rotation);
+    setDirection (Direction::SOUTH);
 }
 
 QString ActiveItem::getTextureSource () const

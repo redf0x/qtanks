@@ -12,7 +12,7 @@ public:
     static const int objectHeight = 32;
 
     enum ActiveItemType { NONE, BASE, PLAYER, ENEMY, PROJECTILE };
-    enum Direction { NORTH, WEST, SOUTH, EAST };
+    enum Direction { NORTH, EAST, SOUTH, WEST };
 
     Q_ENUMS(ActiveItemType Direction)
     Q_PROPERTY(Direction direction READ getDirection WRITE setDirection)
