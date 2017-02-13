@@ -30,9 +30,9 @@ int Entity::getHeight () const
     return Globals::defaultEntityHeight;
 }
 
-int Entity::getOrientation () const
+int Entity::getRotation () const
 {
-    return _orientation;
+    return _rotation;
 }
 
 QString Entity::getObjectId () const
@@ -55,7 +55,17 @@ void Entity::setX (int x)
     _x = x;
 }
 
-void Entity::setOrientation (int orientation)
+void Entity::setRotation (int rotation)
 {
-    _orientation = orientation;
+    _rotation = rotation;
+}
+
+bool Entity::isSolid () const
+{
+    return _solid;
+}
+
+void Entity::setSolid (bool solid)
+{
+    _solid = solid;
 }

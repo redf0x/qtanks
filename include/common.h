@@ -7,4 +7,6 @@
 #include <QQmlProperty>
 #include <QSettings>
 #include <QMetaEnum>
+#include <QQmlContext>
+
 #include "Globals.h"

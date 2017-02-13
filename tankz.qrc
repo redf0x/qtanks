@@ -19,8 +19,12 @@
         <file>ui/game.qml</file>
         <file>ui/GameScene.qml</file>
         <file>ui/Cell.qml</file>
+        <file>ui/Tank.qml</file>
     </qresource>
     <qresource prefix="/data">
         <file>level.dat</file>
+    </qresource>
+    <qresource prefix="/font">
+        <file>ui/res/arcadeclassic.ttf</file>
     </qresource>
 </RCC>

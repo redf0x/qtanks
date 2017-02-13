@@ -11,7 +11,8 @@ SOURCES += \
     src/Entity.cpp \
     src/Block.cpp \
     src/GameScene.cpp \
-    src/MapBuilder.cpp
+    src/MapBuilder.cpp \
+    src/ActiveItem.cpp
 
 HEADERS += \
     include/common.h \
@@ -19,7 +20,8 @@ HEADERS += \
     include/Globals.h \
     include/Block.h \
     include/GameScene.h \
-    include/MapBuilder.h
+    include/MapBuilder.h \
+    include/ActiveItem.h
 
 RESOURCES += \
     tankz.qrc
