@@ -9,10 +9,9 @@ Item {
     width: (battleArea.width / battleField.columns) * 2
     height: (battleArea.height / battleField.rows) * 2
     focus: true
+    objectName: "linked_" + modelData.objectId
 
-    onStateChanged: {
-        console.log("x " + x + "y");
-    }
+    Component.onCompleted: modelData.linkObject(player);
 
     Image {
         id: tankTexture
@@ -42,6 +41,7 @@ Item {
             modelData.direction++;
         }
     }
+
     function turn(direction) {
         switch (direction) {
             case ActiveItem.NORTH:
@@ -107,6 +107,8 @@ Item {
             case ActiveItem.WEST:
                 x = x - scale;
         }
+//        modelData.x = x;
+//        modelData.y = y;
         console.log("new coordinates " + x + ", " + y);
     }
 

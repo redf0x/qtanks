@@ -6,6 +6,9 @@ Item {
     y: modelData.y * height
     width: battleArea.width / battleField.columns
     height: battleArea.height / battleField.rows
+    objectName: "linked_" + modelData.objectId
+
+    Component.onCompleted: modelData.linkObject(cell);
 
     Image {
         id: cellTexture
