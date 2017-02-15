@@ -14,7 +14,8 @@ SOURCES += \
     src/MapBuilder.cpp \
     src/ActiveItem.cpp \
     src/UnitController.cpp \
-    src/Utility.cpp
+    src/Utility.cpp \
+    src/KeyAssignmets.cpp
 
 HEADERS += \
     include/common.h \
@@ -26,7 +27,8 @@ HEADERS += \
     include/ActiveItem.h \
     include/UnitController.h \
     include/Exceptions.h \
-    include/Utility.h
+    include/Utility.h \
+    include/KeyAssignments.h
 
 RESOURCES += \
     tankz.qrc
