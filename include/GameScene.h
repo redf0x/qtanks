@@ -5,6 +5,7 @@
 #include "Block.h"
 #include "ActiveItem.h"
 #include "UnitController.h"
+#include "KeyAssignments.h"
 
 class GameScene : public QObject {
     Q_OBJECT
@@ -19,6 +20,8 @@ class GameScene : public QObject {
 
 public:
     explicit GameScene(QObject* parent = 0) : QObject(parent) {
+        _keyConfig = new KeyAssignments(/* QString("keys.conf"), */ this);
+        _keyConfig->dump ();
         _playerCtl = new UnitController(this);
     }
 
@@ -31,6 +34,7 @@ public:
     void initialize (QString level);
     void reset ();
     void spawnPlayableItem (QPoint);
+    KeyAssignments* getControllerConfig () const;
 
 signals:
     void bmapChanged (QQmlListProperty<Block>);
@@ -40,6 +44,7 @@ private:
     QList<Block*> _bmap;
     QList<ActiveItem*> _playableItems;
     UnitController* _playerCtl;
+    KeyAssignments* _keyConfig;
 };
 
 #endif // GAMESCENE_H

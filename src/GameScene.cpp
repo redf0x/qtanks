@@ -59,3 +59,8 @@ void GameScene::initialize (QString level)
     reset ();
     _bmap = map.spawnObjects (this);
 }
+
+KeyAssignments* GameScene::getControllerConfig () const
+{
+    return _keyConfig;
+}
