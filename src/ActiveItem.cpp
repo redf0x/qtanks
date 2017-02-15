@@ -1,6 +1,7 @@
 #include "ActiveItem.h"
 
-ActiveItem::ActiveItem(QObject* parent, int rotation, ActiveItem::ActiveItemType type) : Entity(parent), _type(type), _frozen(false)
+ActiveItem::ActiveItem(QObject* parent, int rotation, ActiveItem::ActiveItemType type, UnitController* u) :
+    Entity(parent), _type(type), _frozen(false)
 {
     setRotation (rotation);
     setDirection (Direction::SOUTH);
@@ -33,6 +34,9 @@ ActiveItem::Direction ActiveItem::getDirection () const
 
 void ActiveItem::setDirection (ActiveItem::Direction direction)
 {
+    if (_uc)
+        _uc->msgDirectionChanged (this);
+
     _direction = direction;
 }
 
@@ -56,4 +60,9 @@ ActiveItem* ActiveItem::create (QObject* parent, ActiveItem::ActiveItemType type
     }
 
     return z;
+}
+
+void ActiveItem::setUnitController (UnitController* u)
+{
+    _uc = u;
 }
