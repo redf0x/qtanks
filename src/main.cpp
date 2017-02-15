@@ -1,10 +1,10 @@
 #include <QGuiApplication>
-#include <QQmlApplicationEngine>
 
 #include "common.h"
 #include "Entity.h"
 #include "Block.h"
 #include "GameScene.h"
+#include "Exceptions.h"
 
 int main (int argc, char** argv)
 {
@@ -12,7 +12,7 @@ int main (int argc, char** argv)
     QQmlApplicationEngine engine;
     GameScene* game;
 
-    qmlRegisterUncreatableType<Globals>("Tankz.Globals", 0, 1, "Globals", "Globals type cannot be instantiated");
+    qmlRegisterUncreatableType<Globals>("Tanks.Globals", 0, 1, "Globals", "Globals type cannot be instantiated");
     qmlRegisterType<Entity>();
     qmlRegisterType<Block>();
     qmlRegisterType<ActiveItem>("Tanks.ActiveItem", 0, 1, "ActiveItem");
