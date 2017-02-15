@@ -4,6 +4,7 @@
 #include "common.h"
 #include "Block.h"
 #include "ActiveItem.h"
+#include "UnitController.h"
 
 class GameScene : public QObject {
     Q_OBJECT
@@ -17,7 +18,10 @@ class GameScene : public QObject {
     Q_PROPERTY(QQmlListProperty<ActiveItem> playableItems READ getPlayableItems NOTIFY playableItemsChanged)
 
 public:
-    explicit GameScene(QObject* parent = 0) : QObject(parent) { }
+    explicit GameScene(QObject* parent = 0) : QObject(parent) {
+        _playerCtl = new UnitController(this);
+    }
+
     ~GameScene();
 
     int getColumns () const;
@@ -35,6 +39,7 @@ signals:
 private:
     QList<Block*> _bmap;
     QList<ActiveItem*> _playableItems;
+    UnitController* _playerCtl;
 };
 
 #endif // GAMESCENE_H

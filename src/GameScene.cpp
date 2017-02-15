@@ -32,6 +32,10 @@ QQmlListProperty<ActiveItem> GameScene::getPlayableItems ()
 void GameScene::spawnPlayableItem (QPoint pos)
 {
     ActiveItem* p = ActiveItem::create (this, ActiveItem::ActiveItemType::PLAYER, pos);
+
+    p->setObjectId(QString("player"));
+    p->setObjectName (p->getObjectId ());
+    p->setUnitController (_playerCtl);
     _playableItems << p;
 }
 
