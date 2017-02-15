@@ -69,3 +69,17 @@ void Entity::setSolid (bool solid)
 {
     _solid = solid;
 }
+
+void Entity::linkObject (QVariant obj)
+{
+    QObject* object = qvariant_cast<QObject*>(obj);
+    QQuickItem* q = qobject_cast<QQuickItem*>(object);
+
+    if (q != NULL)
+        _linkedObject = q;
+}
+
+QQuickItem* Entity::getLinkedObject () const
+{
+    return _linkedObject;
+}

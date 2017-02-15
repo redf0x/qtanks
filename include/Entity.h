@@ -16,7 +16,7 @@ public:
     Q_PROPERTY(QString objectId READ getObjectId CONSTANT)
     Q_PROPERTY(QString texture READ getTextureSource CONSTANT)
 
-    explicit Entity(QObject* parent = 0) : QObject(parent), _rotation(0), _solid(true) { }
+    explicit Entity(QObject* parent = 0) : QObject(parent), _rotation(0), _solid(true), _linkedObject(0) { }
 
     virtual QString getObjectId () const;
     virtual int getX () const;
@@ -33,11 +33,15 @@ public:
     virtual void setTextureSource (const QString&);
     virtual void setRotation (int);
     virtual void setSolid (bool);
+    virtual QQuickItem* getLinkedObject () const;
 
 signals:
     void xChanged (int);
     void yChanged (int);
     void rotationChanged (int);
+
+public slots:
+    void linkObject (QVariant);
 
 private:
     QString _id;
@@ -46,6 +50,7 @@ private:
     int _y;
     int _rotation;
     bool _solid;
+    QQuickItem* _linkedObject;
 };
 
 #endif // ENTITY_H
