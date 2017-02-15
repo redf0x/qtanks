@@ -8,5 +8,6 @@
 #include <QSettings>
 #include <QMetaEnum>
 #include <QQmlContext>
+#include <QQmlApplicationEngine>
 
 #include "Globals.h"

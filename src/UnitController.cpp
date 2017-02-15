@@ -14,5 +14,9 @@ UnitController::UnitController(QObject* parent) : QObject(parent)
 
 void UnitController::msgDirectionChanged (ActiveItem* a)
 {
+    QQuickItem* o = a->getLinkedObject ();
 
+    if (o)
+        qDebug() << a->getObjectId () << " now @ (" << a->getLinkedObject ()->x () << ", " \
+                 << a->getLinkedObject()->y () << ")";
 }

@@ -1,7 +1,7 @@
 #include "ActiveItem.h"
 
 ActiveItem::ActiveItem(QObject* parent, int rotation, ActiveItem::ActiveItemType type, UnitController* u) :
-    Entity(parent), _type(type), _frozen(false)
+    Entity(parent), _type(type), _uc(u), _frozen(false)
 {
     setRotation (rotation);
     setDirection (Direction::SOUTH);
