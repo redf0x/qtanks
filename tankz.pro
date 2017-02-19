@@ -28,7 +28,10 @@ HEADERS += \
     include/UnitController.h \
     include/Exceptions.h \
     include/Utility.h \
-    include/KeyAssignments.h
+    include/KeyAssignments.h \
+    include/RStarBoundingBox.h \
+    include/RStarTree.h \
+    include/RStarVisitor.h
 
 RESOURCES += \
     tankz.qrc
