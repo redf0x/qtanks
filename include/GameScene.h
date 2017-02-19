@@ -6,6 +6,7 @@
 #include "ActiveItem.h"
 #include "UnitController.h"
 #include "KeyAssignments.h"
+#include "RStarTree.h"
 
 class GameScene : public QObject {
     Q_OBJECT
@@ -19,6 +20,9 @@ class GameScene : public QObject {
     Q_PROPERTY(QQmlListProperty<ActiveItem> playableItems READ getPlayableItems NOTIFY playableItemsChanged)
 
 public:
+    typedef RStarTree<Entity*, 2, 32, 64> RTree;
+    typedef RTree::BoundingBox BoundingBox;
+
     explicit GameScene(QObject* parent = 0) : QObject(parent) {
         _keyConfig = new KeyAssignments(/* QString("keys.conf"), */ this);
         _keyConfig->dump ();
@@ -35,16 +39,21 @@ public:
     void reset ();
     void spawnPlayableItem (QPoint);
     KeyAssignments* getControllerConfig () const;
+    void buildObjectsRTree ();
+    Block* getNearestObstacle (QRect);
 
 signals:
     void bmapChanged (QQmlListProperty<Block>);
     void playableItemsChanged (QQmlListProperty<ActiveItem>);
 
 private:
+    BoundingBox bounds (int x, int y, int w, int h);
+
     QList<Block*> _bmap;
     QList<ActiveItem*> _playableItems;
     UnitController* _playerCtl;
     KeyAssignments* _keyConfig;
+    RTree* _tree;
 };
 
 #endif // GAMESCENE_H

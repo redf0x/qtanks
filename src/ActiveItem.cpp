@@ -1,7 +1,7 @@
 #include "ActiveItem.h"
 
 ActiveItem::ActiveItem(QObject* parent, int rotation, ActiveItem::ActiveItemType type, UnitController* u) :
-    Entity(parent), _type(type), _uc(u), _frozen(false)
+    Entity(parent), _type(type), _uc(u), _frozen(false), _advancement(0)
 {
     setRotation (rotation);
     setDirection (Direction::SOUTH);
@@ -65,4 +65,24 @@ ActiveItem* ActiveItem::create (QObject* parent, ActiveItem::ActiveItemType type
 void ActiveItem::setUnitController (UnitController* u)
 {
     _uc = u;
+}
+
+int ActiveItem::getAdvancement () const
+{
+    return _advancement;
+}
+
+void ActiveItem::setAdvancement (int adv)
+{
+    bool canAdvance = false;
+
+    if (_uc)
+        canAdvance = _uc->msgAdvance (this, adv);
+
+    if (!canAdvance)
+        _advancement = 0;     /* skip value update due unmet conditions */
+    else
+        _advancement = adv;
+
+    emit advancementChanged (adv);
 }

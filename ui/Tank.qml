@@ -13,11 +13,18 @@ Item {
 
     Component.onCompleted: modelData.linkObject(player);
 
-    Image {
-        id: tankTexture
-        anchors.fill: parent
-        source: modelData.texture
-        rotation: modelData.rotation
+    Rectangle {
+        Image {
+            id: tankTexture
+            anchors.fill: parent
+            source: modelData.texture
+            rotation: modelData.rotation
+        }
+
+        anchors.fill: parent;
+        border.color: "blue"
+        border.width: 2
+        color: "transparent"
     }
 
     function rotateCCW() {
@@ -94,41 +101,38 @@ Item {
     function move(direction) {
         var scale = (battleArea.width / battleField.columns) / 4;
 
+        modelData.advancement = scale;
+
         switch(direction) {
             case ActiveItem.SOUTH:
-                y = y + scale;
+                y = y + modelData.advancement;
                 break;
             case ActiveItem.NORTH:
-                y = y - scale;
+                y = y - modelData.advancement;
                 break;
             case ActiveItem.EAST:
-                x = x + scale;
+                x = x + modelData.advancement;
                 break;
             case ActiveItem.WEST:
-                x = x - scale;
+                x = x - modelData.advancement;
         }
-//        modelData.x = x;
-//        modelData.y = y;
-        console.log("new coordinates " + x + ", " + y);
     }
 
     Keys.onPressed: {
-        console.log("dir " + modelData.direction + ", " + event.key);
-
         switch (event.key) {
-            case /* Qt.Key_Left */ controller.keyWest:
+            case controller.keyWest:
                 (modelData.direction == ActiveItem.WEST) ? move(ActiveItem.WEST) : turn(ActiveItem.WEST);
                 break;
 
-            case /* Qt.Key_Right */ controller.keyEast:
+            case controller.keyEast:
                 (modelData.direction == ActiveItem.EAST) ? move(ActiveItem.EAST) : turn(ActiveItem.EAST);
                 break;
 
-            case /* Qt.Key_Down */ controller.keySouth:
+            case controller.keySouth:
                 (modelData.direction == ActiveItem.SOUTH) ? move(ActiveItem.SOUTH) : turn(ActiveItem.SOUTH);
                 break;
 
-            case /* Qt.Key_Up */ controller.keyNorth:
+            case controller.keyNorth:
                 (modelData.direction == ActiveItem.NORTH) ? move(ActiveItem.NORTH) : turn(ActiveItem.NORTH);
         }
 

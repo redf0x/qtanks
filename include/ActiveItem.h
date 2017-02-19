@@ -17,6 +17,7 @@ public:
 
     Q_ENUMS(ActiveItemType Direction)
     Q_PROPERTY(Direction direction READ getDirection WRITE setDirection)
+    Q_PROPERTY(int advancement READ getAdvancement WRITE setAdvancement NOTIFY advancementChanged)
 
     explicit ActiveItem(QObject* parent = 0, int rotation = 0, ActiveItemType type = NONE, UnitController* u = nullptr);
 
@@ -26,15 +27,21 @@ public:
     Direction getDirection () const;
     virtual int getWidth () const;
     virtual int getHeight () const;
+    int getAdvancement () const;
 
     void setDirection (Direction);
     void setUnitController (UnitController*);
+    void setAdvancement (int);
+
+signals:
+    void advancementChanged (int adv);
 
 private:
     ActiveItemType _type;
     Direction _direction;
     UnitController* _uc;
     bool _frozen;
+    int _advancement;
 };
 
 #endif // ACTIVEITEM_H
