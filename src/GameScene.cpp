@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "GameScene.h"
 #include "MapBuilder.h"
 
@@ -70,57 +72,85 @@ void GameScene::buildObjectsRTree ()
 {
     QList<Block*>::iterator b;
 
-    _tree = new RTree();
+    _tree = new ObjectRTree();
 
-    if (!_bmap.isEmpty ())
-        for (b = _bmap.begin (); b != _bmap.end (); b++)
-            _tree->Insert (*b, bounds ((*b)->getLinkedObject ()->x (), (*b)->getLinkedObject ()->y(),
-                                       (*b)->getLinkedObject ()->width (), (*b)->getLinkedObject ()->height ()));
-}
+    if (!_bmap.isEmpty ()) {
+        for (b = _bmap.begin (); b != _bmap.end (); b++) {
+            QQuickItem* l = (*b)->getLinkedObject ();
+            ObjectRTreeBox item(l->x (), l->y (), l->width (), l->height ());
 
-GameScene::BoundingBox GameScene::bounds (int x, int y, int w, int h)
-{
-    GameScene::BoundingBox box;
+            _tree->Insert (item.min, item.max, *b);
+        }
 
-    box.edges[0].first = x;
-    box.edges[0].second = x + w;
-    box.edges[1].first = y;
-    box.edges[1].second = y + h;
-
-    return box;
-}
-
-struct Visitor {
-    int count;
-    bool ContinueVisiting;
-    Block* nearestObstacle;
-
-    Visitor() : count(0), ContinueVisiting(true), nearestObstacle(nullptr) {}
-
-    void operator() (const GameScene::RTree::Leaf* const leaf)
-    {
-        qDebug() << "#" << count << " visited " << leaf->leaf <<    \
-                    " with " << leaf->leaf->getLinkedObject ()->x () << " " <<  \
-                    leaf->leaf->getLinkedObject ()->y ();
-
-        if (leaf->leaf->isSolid ())
-            nearestObstacle = qobject_cast<Block*>(leaf->leaf);
-
-        ContinueVisiting = false;
-
-        count++;
+        _fieldSize = QPoint(_bmap.first ()->getLinkedObject ()->parentItem ()->width (),
+                            _bmap.first ()->getLinkedObject ()->parentItem ()->height ());
     }
-};
+}
 
-Block* GameScene::getNearestObstacle (QRect region)
+int GameScene::getBattleFieldWidth () const
 {
-    GameScene::BoundingBox r = bounds (region.x () + 2, region.y () + 2, region.width () - 2, region.height () - 2);
-    Visitor x;
-    Block* ob;
+    return _fieldSize.x ();
+}
 
-    x = _tree->Query (GameScene::RTree::AcceptOverlapping(r), Visitor());
-    ob = x.nearestObstacle;
-    _tree->RemoveBoundedArea (r);
+int GameScene::getBattleFieldHeight () const
+{
+    return _fieldSize.y ();
+}
 
-    return ob;
+bool scanArea (Entity* e, void* arg)
+{
+    GameScene::ObjectRTreeCtx* ctx = (GameScene::ObjectRTreeCtx*)arg;
+    QQuickItem* lo = e->getLinkedObject ();
+    QRect r(lo->x (), lo->y (), lo->width (), lo->height ());
+    QPoint p = r.center ();
+    int distance = 0;
+
+    qDebug() << "Visiting object @ (" << lo->x () << "," << lo->y () << ")";
+
+    if (!e->isSolid ())
+        return true;
+
+    distance = sqrt (pow (abs (p.x () - ctx->target.x ()), 2) + pow (abs (p.y () - ctx->target.y ()), 2));
+
+    if (distance < ctx->nearestObject) {
+        ctx->nearestObject = distance;
+        ctx->object = e;
+    }
+
+    return true;
+}
+
+Block* GameScene::scanDirection (QRect& target, ActiveItem::Direction direction)
+{
+    QRect scanZone(target);
+    ObjectRTreeBox box;
+    ObjectRTreeCtx ctx;
+
+    qDebug() << "player location" << target;
+
+    switch (direction) {
+        case ActiveItem::Direction::NORTH:
+            scanZone.adjust (3, -scanZone.y (), -3, -scanZone.height ());
+            break;
+
+        case ActiveItem::Direction::SOUTH:
+            scanZone.adjust (3, scanZone.height (), -3, getBattleFieldHeight () - (scanZone.y () + scanZone.height ()));
+            break;
+
+        case ActiveItem::Direction::EAST:
+            scanZone.adjust (scanZone.height (), 3, getBattleFieldWidth () - (scanZone.x () + scanZone.width ()), -3);
+            break;
+
+        case ActiveItem::Direction::WEST:
+            scanZone.adjust (-scanZone.x (), 3, -scanZone.width (), -3);
+    }
+
+    qDebug() << "Scan zone" << scanZone;
+    box = ObjectRTreeBox(scanZone.x (), scanZone.y (), scanZone.width (), scanZone.height ());
+    ctx.nearestObject = std::numeric_limits<int>::max ();
+    ctx.target = target.center ();
+    ctx.object = nullptr;
+    _tree->Search (box.min, box.max, scanArea, &ctx);
+
+    return qobject_cast<Block*>(ctx.object);
 }

@@ -11,8 +11,6 @@ Rectangle {
         height: 13 * 45
         width: 13 * 45
         color: "black"
-        border.color: "red"
-        border.width: 3
 
         Repeater {
             model: battleField.bmap

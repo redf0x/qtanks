@@ -1,7 +1,7 @@
 #include "ActiveItem.h"
 
 ActiveItem::ActiveItem(QObject* parent, int rotation, ActiveItem::ActiveItemType type, UnitController* u) :
-    Entity(parent), _type(type), _uc(u), _frozen(false), _advancement(0)
+    Entity(parent), _type(type), _uc(u), _frozen(false), _distance(0)
 {
     setRotation (rotation);
     setDirection (Direction::SOUTH);
@@ -34,10 +34,10 @@ ActiveItem::Direction ActiveItem::getDirection () const
 
 void ActiveItem::setDirection (ActiveItem::Direction direction)
 {
+    _direction = direction;
+
     if (_uc)
         _uc->msgDirectionChanged (this);
-
-    _direction = direction;
 }
 
 int ActiveItem::getHeight () const
@@ -67,22 +67,19 @@ void ActiveItem::setUnitController (UnitController* u)
     _uc = u;
 }
 
-int ActiveItem::getAdvancement () const
+int ActiveItem::getDistance () const
 {
-    return _advancement;
+    return _distance;
 }
 
-void ActiveItem::setAdvancement (int adv)
+void ActiveItem::setDistance (int d)
 {
-    bool canAdvance = false;
+    if (_distance != d) {
+        if (d < 0)
+            _distance = 0;
+        else
+            _distance = d;
 
-    if (_uc)
-        canAdvance = _uc->msgAdvance (this, adv);
-
-    if (!canAdvance)
-        _advancement = 0;     /* skip value update due unmet conditions */
-    else
-        _advancement = adv;
-
-    emit advancementChanged (adv);
+        emit distanceChanged (d);
+    }
 }

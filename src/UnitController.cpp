@@ -14,11 +14,54 @@ UnitController::UnitController(QObject* parent) : QObject(parent)
 
 void UnitController::msgDirectionChanged (ActiveItem* a)
 {
-    QQuickItem* o = a->getLinkedObject ();
+    QQuickItem* target = a->getLinkedObject ();
+    QRect location(target->x (), target->y (), target->width (), target->height ());
+    Block* block = nullptr;
+    int distance = 0;
 
-    if (o)
-        qDebug() << a->getObjectId () << " now @ (" << a->getLinkedObject ()->x () << ", " \
-                 << a->getLinkedObject()->y () << ")";
+    if (target)
+        qDebug() << a->getObjectId () << " now @ (" << target->x () << ", " \
+                 << target->y () << ")";
+
+    block = scene->scanDirection (location, a->getDirection ());
+
+    if (block)
+        qDebug() << "Obstacle @ " << block->getLinkedObject ()->x () << "," << block->getLinkedObject ()->y () <<   \
+                    block->getLinkedObject ()->width () << "x" << block->getLinkedObject ()->height ();
+    else
+        qDebug() << "No obstacles found";
+
+    switch (a->getDirection ()) {
+        case ActiveItem::SOUTH:
+            if (block)
+                distance = block->getLinkedObject ()->y () - (target->y () + target->height ());
+            else
+                distance = scene->getBattleFieldHeight () - (target->y () + target->height ());
+            break;
+
+        case ActiveItem::NORTH:
+            if (block)
+                distance = target->y () - (block->getLinkedObject ()->y () + block->getLinkedObject ()->height ());
+            else
+                distance = target->y ();
+            break;
+
+        case ActiveItem::EAST:
+            if (block)
+                distance = block->getLinkedObject ()->x () - (target->x () + target->width ());
+            else
+                distance = scene->getBattleFieldWidth () - (target->x () + target->width ());
+            break;
+
+        case ActiveItem::WEST:
+            if (block)
+                distance = target->x () - (block->getLinkedObject ()->x () + block->getLinkedObject ()->width ());
+            else
+                distance = target->x ();
+    }
+
+    a->setDistance (distance);
+    qDebug() << "new distance" << a->getDistance ();
 }
 
 bool UnitController::msgAdvance (ActiveItem* a, int disp)
@@ -49,12 +92,6 @@ bool UnitController::msgAdvance (ActiveItem* a, int disp)
     if (newLoc.x () < 0 || newLoc.y () < 0 || newLoc.x () + newLoc.width () > globalBounds.width () ||
             newLoc.y () + newLoc.height () > globalBounds.height ())
         result = false;
-    else {
-        Block* block = scene->getNearestObstacle (newLoc);
-
-        if (block)
-            result = false;
-    }
 
     return result;
 }

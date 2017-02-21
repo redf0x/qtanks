@@ -99,23 +99,26 @@ Item {
     }
 
     function move(direction) {
-        var scale = (battleArea.width / battleField.columns) / 4;
+        var scale = Math.floor((battleArea.width / battleField.columns) / 4);
 
-        modelData.advancement = scale;
+        if (modelData.distance == 0)
+            return;
 
         switch(direction) {
             case ActiveItem.SOUTH:
-                y = y + modelData.advancement;
+                y = y + scale;
                 break;
             case ActiveItem.NORTH:
-                y = y - modelData.advancement;
+                y = y - scale;
                 break;
             case ActiveItem.EAST:
-                x = x + modelData.advancement;
+                x = x + scale;
                 break;
             case ActiveItem.WEST:
-                x = x - modelData.advancement;
+                x = x - scale;
         }
+
+        modelData.distance = modelData.distance - scale;
     }
 
     Keys.onPressed: {
