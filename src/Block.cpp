@@ -53,10 +53,12 @@ Entity* Block::createObject (QObject* parent, char sign, QPoint pos)
 
         case 'f':
             e = new Block(parent, 0, false, FOREST);
+            e->_z = 2;
             break;
 
         case 'i':
             e = new Block(parent, 0, false, IRON);
+            e->_z = 0;
             break;
 
         case 'x':

@@ -15,8 +15,9 @@ public:
     Q_PROPERTY(bool solid READ isSolid CONSTANT)
     Q_PROPERTY(QString objectId READ getObjectId CONSTANT)
     Q_PROPERTY(QString texture READ getTextureSource CONSTANT)
+    Q_PROPERTY(int zlevel READ getZLevel CONSTANT)
 
-    explicit Entity(QObject* parent = 0) : QObject(parent), _rotation(0), _solid(true), _linkedObject(0) { }
+    explicit Entity(QObject* parent = 0) : QObject(parent), _rotation(0), _solid(true), _linkedObject(0), _z(1) { }
 
     virtual QString getObjectId () const;
     virtual int getX () const;
@@ -25,6 +26,7 @@ public:
     virtual int getHeight () const;
     virtual QString getTextureSource () const;
     virtual int getRotation () const;
+    virtual int getZLevel () const;
     virtual bool isSolid () const;
 
     virtual void setObjectId (QString id);
@@ -55,6 +57,9 @@ private:
     int _rotation;
     bool _solid;
     QQuickItem* _linkedObject;
+
+protected:
+    int _z;
 };
 
 #endif // ENTITY_H

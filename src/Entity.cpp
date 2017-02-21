@@ -98,3 +98,8 @@ Entity* Entity::createObject (QObject* parent, char sign, QPoint pos)
     Q_UNUSED(pos)
     return nullptr;
 }
+
+int Entity::getZLevel () const
+{
+    return _z;
+}

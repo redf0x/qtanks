@@ -4,6 +4,7 @@ Item {
     id: cell
     x: modelData.x * width
     y: modelData.y * height
+    z: modelData.zlevel
     width: battleArea.width / battleField.columns
     height: battleArea.height / battleField.rows
     objectName: "linked_" + modelData.objectId
