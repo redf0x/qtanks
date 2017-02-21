@@ -39,7 +39,7 @@ QQmlListProperty<ActiveItem> GameScene::getNpcItems ()
     return QQmlListProperty<ActiveItem>(this, _npcItems);
 }
 
-void GameScene::spawnPlayableItem (QPoint pos)
+void GameScene::spawnPlayableItem (QPoint pos, QString texOverride)
 {
     ActiveItem s, *p;
 
@@ -47,10 +47,16 @@ void GameScene::spawnPlayableItem (QPoint pos)
     p->setObjectId(QString("player"));
     p->setObjectName (p->getObjectId ());
     p->setUnitController (_playerCtl);
+
+    if (!texOverride.isEmpty ()) {
+        p->overrideTexture (true);
+        p->setTextureSource (texOverride);
+    }
+
     _playableItems << p;
 }
 
-void GameScene::spawnNpcItem (QPoint pos)
+void GameScene::spawnNpcItem (QPoint pos, QString texOverride)
 {
     ActiveItem s, *p;
 
@@ -59,6 +65,12 @@ void GameScene::spawnNpcItem (QPoint pos)
     p->setObjectName (p->getObjectId ());
     QObject::connect (&_timer, SIGNAL(timeout()), p, SLOT(tick()));
     p->setUnitController (_botCtl);
+
+    if (!texOverride.isEmpty ()) {
+        p->overrideTexture (true);
+        p->setTextureSource (texOverride);
+    }
+
     _npcItems << p;
 }
 
@@ -126,8 +138,6 @@ bool scanArea (Entity* e, void* arg)
     QPoint p = r.center ();
     int distance = 0;
 
-    qDebug() << "Visiting object @ (" << lo->x () << "," << lo->y () << ")";
-
     if (!e->isSolid ())
         return true;
 
@@ -147,8 +157,6 @@ Block* GameScene::scanDirection (QRect& target, ActiveItem::Direction direction)
     ObjectRTreeBox box;
     ObjectRTreeCtx ctx;
 
-    qDebug() << "player location" << target;
-
     switch (direction) {
         case ActiveItem::Direction::NORTH:
             scanZone.adjust (3, -scanZone.y (), -3, -scanZone.height ());
@@ -166,7 +174,6 @@ Block* GameScene::scanDirection (QRect& target, ActiveItem::Direction direction)
             scanZone.adjust (-scanZone.x (), 3, -scanZone.width (), -3);
     }
 
-    qDebug() << "Scan zone" << scanZone;
     box = ObjectRTreeBox(scanZone.x (), scanZone.y (), scanZone.width (), scanZone.height ());
     ctx.nearestObject = std::numeric_limits<int>::max ();
     ctx.target = target.center ();

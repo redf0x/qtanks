@@ -1,15 +1,23 @@
 #include "ActiveItem.h"
 
 ActiveItem::ActiveItem(QObject* parent, int rotation, ActiveItem::ActiveItemType type, UnitController* u) :
-    Entity(parent), _type(type), _uc(u), _frozen(false), _distance(0)
+    Entity(parent), _type(type), _uc(u), _frozen(false), _distance(0), texOverriden(false)
 {
     setRotation (rotation);
     setDirection (Direction::SOUTH);
 }
 
+void ActiveItem::overrideTexture (bool v)
+{
+    texOverriden = v;
+}
+
 QString ActiveItem::getTextureSource () const
 {
     QString name("");
+
+    if (texOverriden)
+        return Entity::getTextureSource ();
 
     switch (_type) {
         case BASE:
@@ -22,6 +30,9 @@ QString ActiveItem::getTextureSource () const
 
         case NPC:
             name = "tank_basic";
+
+        default:
+            break;
     }
 
     return "qrc:/image/ui/res/" + name + ".png";
@@ -84,7 +95,7 @@ void ActiveItem::setDistance (int d)
         else
             _distance = d;
 
-        emit distanceChanged (d);
+        emit distanceChanged(d);
     }
 }
 

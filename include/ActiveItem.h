@@ -27,6 +27,7 @@ public:
     void setDirection (Direction);
     void setUnitController (UnitController*);
     void setDistance (int);
+    void overrideTexture (bool);
 
 protected:
     virtual Entity* createObject (QObject *parent, char type, QPoint pos);
@@ -44,6 +45,7 @@ private:
     UnitController* _uc;
     bool _frozen;
     int _distance;
+    bool texOverriden;
 };
 
 #endif // ACTIVEITEM_H

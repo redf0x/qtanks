@@ -59,8 +59,8 @@ public:
     QQmlListProperty<ActiveItem> getNpcItems ();
     void initialize (QString level);
     void reset ();
-    void spawnPlayableItem (QPoint);
-    void spawnNpcItem (QPoint);
+    void spawnPlayableItem (QPoint, QString = "");
+    void spawnNpcItem (QPoint, QString = "");
     KeyAssignments* getControllerConfig () const;
     void buildObjectsRTree ();
     Block* scanDirection (QRect&, ActiveItem::Direction);

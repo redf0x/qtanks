@@ -15,7 +15,7 @@ Item {
 
     Rectangle {
         Image {
-            id: tankTexture
+            id: npcTexture
             anchors.fill: parent
             source: modelData.texture
             rotation: modelData.rotation

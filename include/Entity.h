@@ -14,7 +14,7 @@ public:
     Q_PROPERTY(int rotation READ getRotation WRITE setRotation NOTIFY rotationChanged)
     Q_PROPERTY(bool solid READ isSolid CONSTANT)
     Q_PROPERTY(QString objectId READ getObjectId CONSTANT)
-    Q_PROPERTY(QString texture READ getTextureSource CONSTANT)
+    Q_PROPERTY(QString texture READ getTextureSource WRITE setTextureSource NOTIFY textureChanged)
     Q_PROPERTY(int zlevel READ getZLevel CONSTANT)
 
     explicit Entity(QObject* parent = 0) : QObject(parent), _rotation(0), _solid(true), _linkedObject(0), _z(1) { }
@@ -45,6 +45,7 @@ signals:
     void xChanged (int);
     void yChanged (int);
     void rotationChanged (int);
+    void textureChanged (QString);
 
 public slots:
     void linkObject (QVariant);

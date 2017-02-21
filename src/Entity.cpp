@@ -7,7 +7,10 @@ QString Entity::getTextureSource () const
 
 void Entity::setTextureSource (const QString& src)
 {
-    _texture = src;
+    if (_texture != src) {
+        _texture = src;
+        emit textureChanged(_texture);
+    }
 }
 
 int Entity::getX () const
