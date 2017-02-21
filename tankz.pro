@@ -29,9 +29,7 @@ HEADERS += \
     include/Exceptions.h \
     include/Utility.h \
     include/KeyAssignments.h \
-    include/RStarBoundingBox.h \
-    include/RStarTree.h \
-    include/RStarVisitor.h
+    include/RTree.h
 
 RESOURCES += \
     tankz.qrc
