@@ -13,7 +13,6 @@ public:
     explicit UnitController(QObject* parent = 0);
 
     void msgDirectionChanged (ActiveItem*);
-    bool msgAdvance (ActiveItem*, int);
 
 private:
     GameScene* scene;

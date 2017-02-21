@@ -34,6 +34,10 @@ public:
     virtual void setRotation (int);
     virtual void setSolid (bool);
     virtual QQuickItem* getLinkedObject () const;
+    virtual Entity* create (QObject* parent, char sign, QPoint pos);
+
+protected:
+    virtual Entity* createObject (QObject* parent, char sign, QPoint pos);
 
 signals:
     void xChanged (int);

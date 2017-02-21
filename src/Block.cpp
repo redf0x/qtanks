@@ -38,7 +38,7 @@ QString Block::getTextureSource () const
     return "qrc:/image/ui/res/small_" + name + ".png";
 }
 
-Block* Block::create(QObject* parent, char sign, QPoint pos)
+Entity* Block::createObject (QObject* parent, char sign, QPoint pos)
 {
     Block* e;
 

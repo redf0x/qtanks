@@ -82,4 +82,19 @@ void Entity::linkObject (QVariant obj)
 QQuickItem* Entity::getLinkedObject () const
 {
     return _linkedObject;
+
+}
+
+Entity* Entity::create (QObject* parent, char sign, QPoint pos)
+{
+    return createObject (parent, sign, pos);
+}
+
+/* stub */
+Entity* Entity::createObject (QObject* parent, char sign, QPoint pos)
+{
+    Q_UNUSED(parent)
+    Q_UNUSED(sign)
+    Q_UNUSED(pos)
+    return nullptr;
 }

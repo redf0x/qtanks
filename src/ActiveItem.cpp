@@ -42,17 +42,17 @@ void ActiveItem::setDirection (ActiveItem::Direction direction)
 
 int ActiveItem::getHeight () const
 {
-    return ActiveItem::objectHeight;
+    return Globals::defaultEntityHeight;
 }
 
 int ActiveItem::getWidth () const
 {
-    return ActiveItem::objectWidth;
+    return Globals::defaultEntityWidth;
 }
 
-ActiveItem* ActiveItem::create (QObject* parent, ActiveItem::ActiveItemType type, QPoint pos)
+Entity* ActiveItem::createObject (QObject* parent, char type, QPoint pos)
 {
-    ActiveItem* z = new ActiveItem(parent, 0, type);
+    ActiveItem* z = new ActiveItem(parent, 0, (ActiveItemType)type);
 
     if (z != 0) {
         z->setX (pos.x ());

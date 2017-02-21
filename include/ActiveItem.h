@@ -9,9 +9,6 @@ class ActiveItem : public Entity {
     Q_OBJECT
 
 public:
-    static const int objectWidth = 32;
-    static const int objectHeight = 32;
-
     enum ActiveItemType { NONE, BASE, PLAYER, ENEMY, PROJECTILE };
     enum Direction { NORTH, EAST, SOUTH, WEST };
 
@@ -20,8 +17,6 @@ public:
     Q_PROPERTY(int distance READ getDistance WRITE setDistance NOTIFY distanceChanged)
 
     explicit ActiveItem(QObject* parent = 0, int rotation = 0, ActiveItemType type = NONE, UnitController* u = nullptr);
-
-    static ActiveItem* create (QObject* parent, ActiveItemType type, QPoint pos);
 
     virtual QString getTextureSource () const;
     Direction getDirection () const;
@@ -32,6 +27,9 @@ public:
     void setDirection (Direction);
     void setUnitController (UnitController*);
     void setDistance (int);
+
+protected:
+    virtual Entity* createObject (QObject *parent, char type, QPoint pos);
 
 signals:
     void distanceChanged (int);

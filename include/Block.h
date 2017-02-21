@@ -18,7 +18,8 @@ public:
     virtual QString getTextureSource () const;
     BlockType getBlockType () const;
 
-    static Block* create (QObject* parent, char sign, QPoint pos);
+protected:
+    virtual Entity* createObject (QObject* parent, char sign, QPoint pos);
 
 private:
     BlockType _type;

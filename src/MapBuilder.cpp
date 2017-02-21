@@ -13,7 +13,7 @@ QList<Block *> MapBuilder::spawnObjects(QObject *parent)
 
     for (int y = 0; y < _scene->getRows () + 1; y++)
         for (int x = 0; x < _scene->getColumns () + 1; x++) {
-            Block* entity;
+            Block b, *entity;
 
             if (stream.atEnd ())
                 break;
@@ -23,7 +23,7 @@ QList<Block *> MapBuilder::spawnObjects(QObject *parent)
             if (!isalpha (blk))
                 continue;
 
-            entity = Block::create (parent, blk, QPoint(x, y));
+            entity = dynamic_cast<Block*>(b.create (parent, blk, QPoint(x, y)));
 
             if (entity) {
                 entity->setObjectId (QString("%1x%2y%3").arg (blk).arg (x).arg (y));
