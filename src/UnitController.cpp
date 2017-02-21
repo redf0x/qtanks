@@ -63,3 +63,13 @@ void UnitController::msgDirectionChanged (ActiveItem* a)
     a->setDistance (distance);
     qDebug() << "new distance" << a->getDistance ();
 }
+
+void UnitController::msgTick (ActiveItem* a)
+{
+
+}
+
+GameScene* UnitController::getScene () const
+{
+    return scene;
+}

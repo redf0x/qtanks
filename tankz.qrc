@@ -20,6 +20,7 @@
         <file>ui/GameScene.qml</file>
         <file>ui/Cell.qml</file>
         <file>ui/Tank.qml</file>
+        <file>ui/Bot.qml</file>
     </qresource>
     <qresource prefix="/data">
         <file>level.dat</file>

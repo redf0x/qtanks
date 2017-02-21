@@ -12,7 +12,11 @@ class UnitController : public QObject {
 public:
     explicit UnitController(QObject* parent = 0);
 
-    void msgDirectionChanged (ActiveItem*);
+    virtual void msgDirectionChanged (ActiveItem*);
+    virtual void msgTick (ActiveItem*);
+
+protected:
+    virtual GameScene* getScene () const;
 
 private:
     GameScene* scene;

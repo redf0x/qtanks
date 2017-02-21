@@ -9,11 +9,11 @@ class ActiveItem : public Entity {
     Q_OBJECT
 
 public:
-    enum ActiveItemType { NONE, BASE, PLAYER, ENEMY, PROJECTILE };
+    enum ActiveItemType { NONE, BASE, PLAYER, NPC, PROJECTILE };
     enum Direction { NORTH, EAST, SOUTH, WEST };
 
     Q_ENUMS(ActiveItemType Direction)
-    Q_PROPERTY(Direction direction READ getDirection WRITE setDirection)
+    Q_PROPERTY(Direction direction READ getDirection WRITE setDirection NOTIFY directionChanged)
     Q_PROPERTY(int distance READ getDistance WRITE setDistance NOTIFY distanceChanged)
 
     explicit ActiveItem(QObject* parent = 0, int rotation = 0, ActiveItemType type = NONE, UnitController* u = nullptr);
@@ -33,6 +33,10 @@ protected:
 
 signals:
     void distanceChanged (int);
+    void directionChanged (Direction);
+
+public slots:
+    void tick ();
 
 private:
     ActiveItemType _type;

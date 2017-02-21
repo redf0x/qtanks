@@ -15,7 +15,8 @@ SOURCES += \
     src/ActiveItem.cpp \
     src/UnitController.cpp \
     src/Utility.cpp \
-    src/KeyAssignmets.cpp
+    src/KeyAssignmets.cpp \
+    src/NpcController.cpp
 
 HEADERS += \
     include/common.h \
@@ -29,7 +30,8 @@ HEADERS += \
     include/Exceptions.h \
     include/Utility.h \
     include/KeyAssignments.h \
-    include/RTree.h
+    include/RTree.h \
+    include/NpcController.h
 
 RESOURCES += \
     tankz.qrc

@@ -5,6 +5,7 @@
 #include "Block.h"
 #include "ActiveItem.h"
 #include "UnitController.h"
+#include "NpcController.h"
 #include "KeyAssignments.h"
 #include "RTree.h"
 
@@ -18,6 +19,7 @@ class GameScene : public QObject {
     Q_PROPERTY(int rows READ getRows CONSTANT)
     Q_PROPERTY(QQmlListProperty<Block> bmap READ getBmap NOTIFY bmapChanged)
     Q_PROPERTY(QQmlListProperty<ActiveItem> playableItems READ getPlayableItems NOTIFY playableItemsChanged)
+    Q_PROPERTY(QQmlListProperty<ActiveItem> npcItems READ getNpcItems NOTIFY npcItemsChanged)
 
     typedef struct ObjectRTreeBox {
         ObjectRTreeBox() { }
@@ -45,6 +47,7 @@ public:
         _keyConfig = new KeyAssignments(/* QString("keys.conf"), */ this);
         _keyConfig->dump ();
         _playerCtl = new UnitController(this);
+        _botCtl = new NpcController(this);
     }
 
     ~GameScene();
@@ -53,26 +56,33 @@ public:
     int getRows () const;
     QQmlListProperty<Block> getBmap ();
     QQmlListProperty<ActiveItem> getPlayableItems ();
+    QQmlListProperty<ActiveItem> getNpcItems ();
     void initialize (QString level);
     void reset ();
     void spawnPlayableItem (QPoint);
+    void spawnNpcItem (QPoint);
     KeyAssignments* getControllerConfig () const;
     void buildObjectsRTree ();
     Block* scanDirection (QRect&, ActiveItem::Direction);
     int getBattleFieldWidth () const;
     int getBattleFieldHeight () const;
+    void start ();
 
 signals:
     void bmapChanged (QQmlListProperty<Block>);
     void playableItemsChanged (QQmlListProperty<ActiveItem>);
+    void npcItemsChanged (QQmlListProperty<ActiveItem>);
 
 private:
     QList<Block*> _bmap;
     QList<ActiveItem*> _playableItems;
+    QList<ActiveItem*> _npcItems;
     UnitController* _playerCtl;
+    NpcController* _botCtl;
     KeyAssignments* _keyConfig;
     ObjectRTree* _tree;
     QPoint _fieldSize;
+    QTimer _timer;
 };
 
 #endif // GAMESCENE_H

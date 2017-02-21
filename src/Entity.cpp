@@ -57,7 +57,10 @@ void Entity::setX (int x)
 
 void Entity::setRotation (int rotation)
 {
-    _rotation = rotation;
+    if (rotation != _rotation) {
+        _rotation = rotation;
+        emit rotationChanged(_rotation);
+    }
 }
 
 bool Entity::isSolid () const

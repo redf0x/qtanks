@@ -9,6 +9,8 @@ GameScene::~GameScene()
     _bmap.clear ();
     qDeleteAll (_playableItems);
     _playableItems.clear ();
+    qDeleteAll (_npcItems);
+    _npcItems.clear ();
     delete _tree;
 }
 
@@ -32,6 +34,11 @@ QQmlListProperty<ActiveItem> GameScene::getPlayableItems ()
     return QQmlListProperty<ActiveItem>(this, _playableItems);
 }
 
+QQmlListProperty<ActiveItem> GameScene::getNpcItems ()
+{
+    return QQmlListProperty<ActiveItem>(this, _npcItems);
+}
+
 void GameScene::spawnPlayableItem (QPoint pos)
 {
     ActiveItem s, *p;
@@ -41,6 +48,18 @@ void GameScene::spawnPlayableItem (QPoint pos)
     p->setObjectName (p->getObjectId ());
     p->setUnitController (_playerCtl);
     _playableItems << p;
+}
+
+void GameScene::spawnNpcItem (QPoint pos)
+{
+    ActiveItem s, *p;
+
+    p = dynamic_cast<ActiveItem*>(s.create (this, ActiveItem::ActiveItemType::NPC, pos));
+    p->setObjectId(QString("npc@%1%2").arg (pos.x ()).arg (pos.y ()));
+    p->setObjectName (p->getObjectId ());
+    QObject::connect (&_timer, SIGNAL(timeout()), p, SLOT(tick()));
+    p->setUnitController (_botCtl);
+    _npcItems << p;
 }
 
 void GameScene::reset ()
@@ -62,6 +81,7 @@ void GameScene::initialize (QString level)
 
     reset ();
     _bmap = map.spawnObjects (this);
+    _timer.setInterval (100);
 }
 
 KeyAssignments* GameScene::getControllerConfig () const
@@ -154,4 +174,9 @@ Block* GameScene::scanDirection (QRect& target, ActiveItem::Direction direction)
     _tree->Search (box.min, box.max, scanArea, &ctx);
 
     return qobject_cast<Block*>(ctx.object);
+}
+
+void GameScene::start ()
+{
+    _timer.start ();
 }

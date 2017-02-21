@@ -20,10 +20,14 @@ int main (int argc, char** argv)
     game = new GameScene(&app);
     game->initialize (":/data/level.dat");
     game->spawnPlayableItem (QPoint(24, 24));
+    game->spawnNpcItem (QPoint(0, 0));
+    game->spawnNpcItem (QPoint(13, 0));
+    game->spawnNpcItem (QPoint(24, 0));
     engine.rootContext ()->setContextProperty ("battleField", game);
     engine.rootContext ()->setContextProperty ("controller", game->getControllerConfig ());
     engine.load (QUrl("qrc:/qml/ui/game.qml"));
     game->buildObjectsRTree ();
+    game->start ();
 
     app.exec ();
 

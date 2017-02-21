@@ -21,5 +21,10 @@ Rectangle {
             model: battleField.playableItems
             Tank { }
         }
+
+        Repeater {
+            model: battleField.npcItems
+            Bot { }
+        }
     }
 }

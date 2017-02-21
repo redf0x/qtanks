@@ -20,8 +20,8 @@ QString ActiveItem::getTextureSource () const
             name = "tank_player";
             break;
 
-        case ENEMY:
-            name = " tank_basic";
+        case NPC:
+            name = "tank_basic";
     }
 
     return "qrc:/image/ui/res/" + name + ".png";
@@ -34,10 +34,14 @@ ActiveItem::Direction ActiveItem::getDirection () const
 
 void ActiveItem::setDirection (ActiveItem::Direction direction)
 {
-    _direction = direction;
+    if (_direction != direction) {
+        _direction = direction;
 
-    if (_uc)
-        _uc->msgDirectionChanged (this);
+        if (_uc)
+            _uc->msgDirectionChanged (this);
+
+        emit directionChanged (_direction);
+    }
 }
 
 int ActiveItem::getHeight () const
@@ -82,4 +86,10 @@ void ActiveItem::setDistance (int d)
 
         emit distanceChanged (d);
     }
+}
+
+void ActiveItem::tick ()
+{
+    if (_uc)
+        _uc->msgTick (this);
 }
