@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = tankz
+TARGET = qtanks
 DESTDIR = build
 OBJECTS_DIR = build
 INCLUDEPATH += include
@@ -34,6 +34,6 @@ HEADERS += \
     include/NpcController.h
 
 RESOURCES += \
-    tankz.qrc
+    qtanks.qrc
 
 DISTFILES +=
