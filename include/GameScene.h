@@ -18,6 +18,7 @@ class GameScene : public QObject {
     Q_PROPERTY(int columns READ getColumns CONSTANT)
     Q_PROPERTY(int rows READ getRows CONSTANT)
     Q_PROPERTY(bool frozen READ getFrozen WRITE setFrozen NOTIFY frozenChanged)
+    Q_PROPERTY(int enemyCounter READ getEnemyCounter WRITE setEnemyCounter NOTIFY enemyCounterChanged)
     Q_PROPERTY(QQmlListProperty<Block> bmap READ getBmap NOTIFY bmapChanged)
     Q_PROPERTY(QQmlListProperty<ActiveItem> playableItems READ getPlayableItems NOTIFY playableItemsChanged)
     Q_PROPERTY(QQmlListProperty<ActiveItem> npcItems READ getNpcItems NOTIFY npcItemsChanged)
@@ -56,26 +57,31 @@ public:
     int getColumns () const;
     int getRows () const;
     bool getFrozen () const;
+    int getEnemyCounter () const;
     QQmlListProperty<Block> getBmap ();
     QQmlListProperty<ActiveItem> getPlayableItems ();
     QQmlListProperty<ActiveItem> getNpcItems ();
+
     void initialize (QString level);
     void reset ();
     void spawnPlayableItem (QPoint, QString = "");
     void spawnNpcItem (QPoint, QString = "");
-    KeyAssignments* getControllerConfig () const;
     void buildObjectsRTree ();
     Block* scanDirection (QRect&, ActiveItem::Direction);
+
+    KeyAssignments* getControllerConfig () const;
     int getBattleFieldWidth () const;
     int getBattleFieldHeight () const;
     void start ();
     void setFrozen (bool);
+    void setEnemyCounter (int);
 
 signals:
     void bmapChanged (QQmlListProperty<Block>);
     void playableItemsChanged (QQmlListProperty<ActiveItem>);
     void npcItemsChanged (QQmlListProperty<ActiveItem>);
     void frozenChanged (bool);
+    void enemyCounterChanged (int);
 
 private:
     QList<Block*> _bmap;
@@ -88,6 +94,7 @@ private:
     QPoint _fieldSize;
     QTimer _timer;
     bool _frozen;
+    int _enemyCounter;
 };
 
 #endif // GAMESCENE_H

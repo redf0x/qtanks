@@ -9,7 +9,7 @@ Item {
         spacing: 2
 
         Repeater {
-            model: 24
+            model: battleField.enemyCounter
 
             Rectangle {
                 width: 32

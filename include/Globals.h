@@ -9,6 +9,7 @@ class Globals : public QObject {
 public:
     static const int defaultEntityWidth = 32;
     static const int defaultEntityHeight = 32;
+    static const int enemyCount = 18;
 
     enum { EXIT, START, SETTINGS, HISCORE };
 };

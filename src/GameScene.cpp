@@ -85,6 +85,8 @@ void GameScene::reset ()
 
     _playableItems.clear ();
     qDeleteAll (tmp1);
+
+    _enemyCounter = Globals.enemyCount;
 }
 
 void GameScene::initialize (QString level)
@@ -213,5 +215,18 @@ void GameScene::setFrozen (bool p)
             (*i)->setFrozen (_frozen);
 
         emit frozenChanged(_frozen);
+    }
+}
+
+int GameScene::getEnemyCounter () const
+{
+    return _enemyCounter;
+}
+
+void GameScene::setEnemyCounter (int c)
+{
+    if (c != _enemyCounter) {
+        _enemyCounter = c;
+        emit enemyCounterChanged(_enemyCounter);
     }
 }
