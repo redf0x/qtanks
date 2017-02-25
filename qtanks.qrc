@@ -14,6 +14,9 @@
         <file>ui/res/small_forest.png</file>
         <file>ui/res/small_iron.png</file>
         <file>ui/res/small_steel.png</file>
+        <file>ui/res/enemy_counter.png</file>
+        <file>ui/res/life.png</file>
+        <file>ui/res/flag.png</file>
     </qresource>
     <qresource prefix="/qml">
         <file>ui/game.qml</file>
@@ -21,6 +24,7 @@
         <file>ui/Cell.qml</file>
         <file>ui/Tank.qml</file>
         <file>ui/Bot.qml</file>
+        <file>ui/HUD.qml</file>
     </qresource>
     <qresource prefix="/data">
         <file>level.dat</file>

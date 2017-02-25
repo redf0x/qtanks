@@ -27,4 +27,8 @@ Rectangle {
             Bot { }
         }
     }
+
+    HUD {
+        anchors { left: battleArea.right; leftMargin: 16; }
+    }
 }
