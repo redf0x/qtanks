@@ -17,6 +17,7 @@ class GameScene : public QObject {
 
     Q_PROPERTY(int columns READ getColumns CONSTANT)
     Q_PROPERTY(int rows READ getRows CONSTANT)
+    Q_PROPERTY(bool frozen READ getFrozen WRITE setFrozen NOTIFY frozenChanged)
     Q_PROPERTY(QQmlListProperty<Block> bmap READ getBmap NOTIFY bmapChanged)
     Q_PROPERTY(QQmlListProperty<ActiveItem> playableItems READ getPlayableItems NOTIFY playableItemsChanged)
     Q_PROPERTY(QQmlListProperty<ActiveItem> npcItems READ getNpcItems NOTIFY npcItemsChanged)
@@ -43,7 +44,7 @@ class GameScene : public QObject {
 public:
     typedef RTree<Entity*, int, 2, float, 512> ObjectRTree;
 
-    explicit GameScene(QObject* parent = 0) : QObject(parent) {
+    explicit GameScene(QObject* parent = 0) : QObject(parent), _frozen(true) {
         _keyConfig = new KeyAssignments(/* QString("keys.conf"), */ this);
         _keyConfig->dump ();
         _playerCtl = new UnitController(this);
@@ -54,6 +55,7 @@ public:
 
     int getColumns () const;
     int getRows () const;
+    bool getFrozen () const;
     QQmlListProperty<Block> getBmap ();
     QQmlListProperty<ActiveItem> getPlayableItems ();
     QQmlListProperty<ActiveItem> getNpcItems ();
@@ -67,11 +69,13 @@ public:
     int getBattleFieldWidth () const;
     int getBattleFieldHeight () const;
     void start ();
+    void setFrozen (bool);
 
 signals:
     void bmapChanged (QQmlListProperty<Block>);
     void playableItemsChanged (QQmlListProperty<ActiveItem>);
     void npcItemsChanged (QQmlListProperty<ActiveItem>);
+    void frozenChanged (bool);
 
 private:
     QList<Block*> _bmap;
@@ -83,6 +87,7 @@ private:
     ObjectRTree* _tree;
     QPoint _fieldSize;
     QTimer _timer;
+    bool _frozen;
 };
 
 #endif // GAMESCENE_H

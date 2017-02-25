@@ -2,6 +2,9 @@
 
 void NpcController::msgTick (ActiveItem* a)
 {
+    if (a->getFrozen ())
+        return;
+
     if (!a->getDistance ()) {
         int newDir = (rand () % (((int)ActiveItem::Direction::WEST) + 1));
         int oldDir = (int)a->getDirection ();

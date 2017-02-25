@@ -185,5 +185,33 @@ Block* GameScene::scanDirection (QRect& target, ActiveItem::Direction direction)
 
 void GameScene::start ()
 {
+    _frozen = false;
     _timer.start ();
+}
+
+bool GameScene::getFrozen () const
+{
+    return _frozen;
+}
+
+void GameScene::setFrozen (bool p)
+{
+    if (p != _frozen) {
+        QList<ActiveItem*>::iterator i;
+
+        _frozen = p;
+
+        if (_frozen)
+            _timer.stop ();
+        else
+            _timer.start ();
+
+        for (i = _playableItems.begin (); i != _playableItems.end (); i++)
+            (*i)->setFrozen (_frozen);
+
+        for (i = _npcItems.begin (); i != _npcItems.end (); i++)
+            (*i)->setFrozen (_frozen);
+
+        emit frozenChanged(_frozen);
+    }
 }

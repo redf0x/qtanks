@@ -15,6 +15,7 @@ public:
     Q_ENUMS(ActiveItemType Direction)
     Q_PROPERTY(Direction direction READ getDirection WRITE setDirection NOTIFY directionChanged)
     Q_PROPERTY(int distance READ getDistance WRITE setDistance NOTIFY distanceChanged)
+    Q_PROPERTY(bool frozen READ getFrozen WRITE setFrozen NOTIFY frozenChanged)
 
     explicit ActiveItem(QObject* parent = 0, int rotation = 0, ActiveItemType type = NONE, UnitController* u = nullptr);
 
@@ -23,11 +24,13 @@ public:
     virtual int getWidth () const;
     virtual int getHeight () const;
     int getDistance () const;
+    bool getFrozen () const;
 
     void setDirection (Direction);
     void setUnitController (UnitController*);
     void setDistance (int);
     void overrideTexture (bool);
+    void setFrozen (bool);
 
 protected:
     virtual Entity* createObject (QObject *parent, char type, QPoint pos);
@@ -35,6 +38,7 @@ protected:
 signals:
     void distanceChanged (int);
     void directionChanged (Direction);
+    void frozenChanged (bool);
 
 public slots:
     void tick ();

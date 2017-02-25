@@ -104,3 +104,16 @@ void ActiveItem::tick ()
     if (_uc)
         _uc->msgTick (this);
 }
+
+bool ActiveItem::getFrozen () const
+{
+    return _frozen;
+}
+
+void ActiveItem::setFrozen (bool f)
+{
+    if (f != _frozen) {
+        _frozen = f;
+        emit frozenChanged(f);
+    }
+}
