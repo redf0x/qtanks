@@ -68,6 +68,7 @@ public:
     void spawnNpcItem (QPoint, QString = "");
     void buildObjectsRTree ();
     Block* scanDirection (QRect&, ActiveItem::Direction);
+    QList<ActiveItem*> checkImmediateCollisions (ActiveItem*);
 
     KeyAssignments* getControllerConfig () const;
     int getBattleFieldWidth () const;
@@ -84,6 +85,8 @@ signals:
     void enemyCounterChanged (int);
 
 private:
+    QList<ActiveItem*> getIntersectionsList (ActiveItem*, QList<ActiveItem*> &);
+
     QList<Block*> _bmap;
     QList<ActiveItem*> _playableItems;
     QList<ActiveItem*> _npcItems;

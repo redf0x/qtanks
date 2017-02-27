@@ -1,9 +1,19 @@
+#include "GameScene.h"
 #include "NpcController.h"
 
 void NpcController::msgTick (ActiveItem* a)
 {
+    QList<ActiveItem*> c;
+
     if (a->getFrozen ())
         return;
+
+    c = getScene()->checkImmediateCollisions (a);
+
+    if (!c.empty ()) {
+        qDebug() << a->getObjectId () << "collides";
+        a->setDistance (0);
+    }
 
     if (!a->getDistance ()) {
         int newDir = (rand () % (((int)ActiveItem::Direction::WEST) + 1));

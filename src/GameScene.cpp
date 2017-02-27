@@ -86,7 +86,7 @@ void GameScene::reset ()
     _playableItems.clear ();
     qDeleteAll (tmp1);
 
-    _enemyCounter = Globals.enemyCount;
+    _enemyCounter = Globals::enemyCount;
 }
 
 void GameScene::initialize (QString level)
@@ -229,4 +229,48 @@ void GameScene::setEnemyCounter (int c)
         _enemyCounter = c;
         emit enemyCounterChanged(_enemyCounter);
     }
+}
+QList<ActiveItem*> GameScene::getIntersectionsList (ActiveItem* a, QList<ActiveItem*>& list)
+{
+    QList<ActiveItem*> rlist;
+    QQuickItem* q = a->getLinkedObject ();
+    QRect r1(q->x (), q->y (), q->width (), q->height ()), r2;
+
+    switch (a->getDirection ()) {
+        case ActiveItem::NORTH:
+            r1.translate (0, -q->height () / 2);
+            break;
+
+        case ActiveItem::SOUTH:
+            r1.translate (0, q->height () / 2);
+            break;
+
+        case ActiveItem::EAST:
+            r1.translate (q->width () / 2, 0);
+            break;
+
+        case ActiveItem::WEST:
+            r1.translate (-q->width () / 2, 0);
+    }
+
+    for (QList<ActiveItem*>::iterator i = list.begin (); i != list.end (); i++)
+        if (*i != a) {
+            q = (*i)->getLinkedObject ();
+            r2 = QRect(q->x (), q->y (), q->width (), q->height ());
+
+            if (r1.intersects (r2))
+                rlist << (*i);
+        }
+
+    return rlist;
+}
+
+QList<ActiveItem*> GameScene::checkImmediateCollisions (ActiveItem* a)
+{
+    QList<ActiveItem*> collisions;
+
+    collisions += getIntersectionsList (a, _playableItems);
+    collisions += getIntersectionsList (a, _npcItems);
+
+    return collisions;
 }
