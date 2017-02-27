@@ -218,18 +218,6 @@ void GameScene::setFrozen (bool p)
     }
 }
 
-int GameScene::getEnemyCounter () const
-{
-    return _enemyCounter;
-}
-
-void GameScene::setEnemyCounter (int c)
-{
-    if (c != _enemyCounter) {
-        _enemyCounter = c;
-        emit enemyCounterChanged(_enemyCounter);
-    }
-}
 QList<ActiveItem*> GameScene::getIntersectionsList (ActiveItem* a, QList<ActiveItem*>& list)
 {
     QList<ActiveItem*> rlist;

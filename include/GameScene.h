@@ -18,7 +18,11 @@ class GameScene : public QObject {
     Q_PROPERTY(int columns READ getColumns CONSTANT)
     Q_PROPERTY(int rows READ getRows CONSTANT)
     Q_PROPERTY(bool frozen READ getFrozen WRITE setFrozen NOTIFY frozenChanged)
-    Q_PROPERTY(int enemyCounter READ getEnemyCounter WRITE setEnemyCounter NOTIFY enemyCounterChanged)
+
+    Q_PROPERTY(int enemyCounter MEMBER _enemyCounter NOTIFY enemyCounterChanged)
+    Q_PROPERTY(int stage MEMBER _stage NOTIFY stageChanged)
+    Q_PROPERTY(int playerTanks MEMBER _playerCounter NOTIFY playerCounterChanged)
+
     Q_PROPERTY(QQmlListProperty<Block> bmap READ getBmap NOTIFY bmapChanged)
     Q_PROPERTY(QQmlListProperty<ActiveItem> playableItems READ getPlayableItems NOTIFY playableItemsChanged)
     Q_PROPERTY(QQmlListProperty<ActiveItem> npcItems READ getNpcItems NOTIFY npcItemsChanged)
@@ -45,7 +49,7 @@ class GameScene : public QObject {
 public:
     typedef RTree<Entity*, int, 2, float, 512> ObjectRTree;
 
-    explicit GameScene(QObject* parent = 0) : QObject(parent), _frozen(true) {
+    explicit GameScene(QObject* parent = 0) : QObject(parent), _frozen(true), _stage(1) {
         _keyConfig = new KeyAssignments(/* QString("keys.conf"), */ this);
         _keyConfig->dump ();
         _playerCtl = new UnitController(this);
@@ -57,7 +61,6 @@ public:
     int getColumns () const;
     int getRows () const;
     bool getFrozen () const;
-    int getEnemyCounter () const;
     QQmlListProperty<Block> getBmap ();
     QQmlListProperty<ActiveItem> getPlayableItems ();
     QQmlListProperty<ActiveItem> getNpcItems ();
@@ -75,7 +78,6 @@ public:
     int getBattleFieldHeight () const;
     void start ();
     void setFrozen (bool);
-    void setEnemyCounter (int);
 
 signals:
     void bmapChanged (QQmlListProperty<Block>);
@@ -83,6 +85,8 @@ signals:
     void npcItemsChanged (QQmlListProperty<ActiveItem>);
     void frozenChanged (bool);
     void enemyCounterChanged (int);
+    void stageChanged (int);
+    void playerCounterChanged (int);
 
 private:
     QList<ActiveItem*> getIntersectionsList (ActiveItem*, QList<ActiveItem*> &);
@@ -97,7 +101,7 @@ private:
     QPoint _fieldSize;
     QTimer _timer;
     bool _frozen;
-    int _enemyCounter;
+    int _enemyCounter, _stage, _playerCounter;
 };
 
 #endif // GAMESCENE_H

@@ -31,7 +31,8 @@ HEADERS += \
     include/Utility.h \
     include/KeyAssignments.h \
     include/RTree.h \
-    include/NpcController.h
+    include/NpcController.h \
+    include/Loader.h
 
 RESOURCES += \
     qtanks.qrc
