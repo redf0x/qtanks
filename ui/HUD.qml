@@ -51,8 +51,8 @@ Item {
 
         Text {
             anchors { top: ctrLabel.bottom; left: ctrImage.right }
-            text: "99"
-            font { family: fontLoader.name; pointSize: 32 }
+            text: battleField.playerTanks
+            font { family: fontLoader.name; pointSize: 42 }
         }
 
         Image {
@@ -65,8 +65,8 @@ Item {
 
         Text {
             anchors.top: stageImage.bottom
-            text: "99"
-            font { family: fontLoader.name; pointSize: 32 }
+            text: battleField.stage
+            font { family: fontLoader.name; pointSize: 42 }
         }
     }
 }
