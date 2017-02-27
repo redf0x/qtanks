@@ -1,8 +1,9 @@
 import QtQuick 2.0
+import Tanks.Globals 0.1
 
 Rectangle {
     color: "black"
-    signal commitChoice(var c)
+    signal userAction(var c)
 
     Image {
         y: parent.height / 4
@@ -21,15 +22,15 @@ Rectangle {
 
         model: ListModel {
             /* That's kinda stupid, huh, but seemingly no other easy way to work around QTBUG-16289 */
-            ListElement { itemText: "LETS ROCK!"; itemTextColor: "white"; itemTextSize: 28; itemId: 1 }
+            ListElement { itemText: "LETS ROCK!"; itemTextColor: "white"; itemTextSize: 28; itemId: Globals.START }
             /* not yet implemented */
 /*
             ListElement { itemText: "SETTINGS"; itemTextColor: "white"; itemTextSize: 28; itemId: 1 }
             ListElement { itemText: "HALL OF FAME"; itemTextColor: "white"; itemTextSize: 28; itemId: 2 }
 */
-            ListElement { itemText: "EXIT"; itemTextColor: "white"; itemTextSize: 28; itemId: 0 }
+            ListElement { itemText: "EXIT"; itemTextColor: "white"; itemTextSize: 28; itemId: Globals.EXIT }
         }
 
-        onUserChoice: { gameLdr.commitChoice(choice); }
+        onUserChoice: { gameLdr.userAction(choice); }
     }
 }

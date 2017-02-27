@@ -11,7 +11,8 @@ public:
     static const int defaultEntityHeight = 32;
     static const int enemyCount = 18;
 
-    enum { EXIT, START, SETTINGS, HISCORE };
+    enum UserAction { EXIT, START, SETTINGS, HISCORE, CANCEL_GAME };
+    Q_ENUMS(UserAction)
 };
 
 #endif // GLOBALS_H

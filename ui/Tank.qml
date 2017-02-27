@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Tanks.ActiveItem 0.1
+import Tanks.Globals 0.1
 
 Item {
     id: player
@@ -12,6 +13,7 @@ Item {
     objectName: "linked_" + modelData.objectId
 
     Component.onCompleted: modelData.linkObject(player);
+    signal userAction(var c)
 
     Rectangle {
         Image {
@@ -146,6 +148,10 @@ Item {
 
             case controller.keyPause:
                 battleField.frozen = !battleField.frozen;
+                break;
+
+            case Qt.Key_Escape:
+                gameLdr.userAction(Globals.CANCEL_GAME);
         }
 
         event.accepted = true;

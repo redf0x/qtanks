@@ -14,13 +14,17 @@ public:
     explicit Loader(QObject* parent = 0) : QObject(parent) {
         if (!dynamic_cast<QQmlApplicationEngine*>(parent))
             throw InvalidOwnership(parent);
+        game = 0;
+    }
+
+    ~Loader() {
+        if (game)
+            delete game;
     }
 
     inline void titleScreen () { emit contentRequest(QString("qrc:/qml/ui/start.qml")); }
 
     inline void gameScreen () {
-        GameScene* game;
-
         game = new GameScene(this->parent ());
         game->initialize (":/data/level.dat");
         game->spawnPlayableItem (QPoint(24, 24));
@@ -38,7 +42,7 @@ signals:
     void contentRequest (QVariant);
 
 public slots:
-    void commitChoice (int c) {
+    void userAction (int c) {
         qDebug() << "user choice" << c;
         switch (c) {
             case Globals::EXIT:
@@ -47,8 +51,19 @@ public slots:
 
             case Globals::START:
                 gameScreen ();
+                break;
+
+            case Globals::CANCEL_GAME:
+                qDebug() << "User aborted game";
+                game->reset ();
+                delete game;
+                game = 0;
+                titleScreen ();
         }
     }
+
+private:
+    GameScene* game;
 };
 
 #endif // LOADER_H
