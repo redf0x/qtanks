@@ -10,5 +10,6 @@
 #include <QQmlContext>
 #include <QQmlApplicationEngine>
 #include <QTimer>
+#include <QApplication>
 
 #include "Globals.h"
