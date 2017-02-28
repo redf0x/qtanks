@@ -27,7 +27,6 @@
         <file>ui/GameScene.qml</file>
         <file>ui/Cell.qml</file>
         <file>ui/Tank.qml</file>
-        <file>ui/Bot.qml</file>
         <file>ui/HUD.qml</file>
         <file>ui/GameMenu.qml</file>
         <file>ui/start.qml</file>
