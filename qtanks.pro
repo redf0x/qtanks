@@ -16,7 +16,8 @@ SOURCES += \
     src/UnitController.cpp \
     src/Utility.cpp \
     src/KeyAssignmets.cpp \
-    src/NpcController.cpp
+    src/NpcController.cpp \
+    src/Loader.cpp
 
 HEADERS += \
     include/common.h \
