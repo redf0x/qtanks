@@ -46,6 +46,9 @@ void WorkQueue::run ()
         emit finishedTask (f);
         lockQueue ();
         tasks.erase (tasks.begin ());
+
+        if (f->autoDelete ())
+            delete f;
     }
 
     unlockQueue ();
