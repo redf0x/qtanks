@@ -26,6 +26,11 @@ Rectangle {
             model: battleField.npcItems
             Bot { }
         }
+
+        Repeater {
+            model: battleField.projectiles
+            Projectile { }
+        }
     }
 
     HUD {
