@@ -1,4 +1,5 @@
 #include "MapBuilder.h"
+#include "Exceptions.h"
 
 QList<Block *> MapBuilder::spawnObjects(QObject *parent)
 {
@@ -15,13 +16,20 @@ QList<Block *> MapBuilder::spawnObjects(QObject *parent)
         for (int x = 0; x < _scene->getColumns () + 1; x++) {
             Block b, *entity;
 
-            if (stream.atEnd ())
-                break;
+            if (stream.atEnd ()) {
+                if (y < _scene->getRows ())
+                    throw InvalidLevelData(_file, InvalidLevelData::UNEXPECTED_EOF);
+                else
+                    break;
+            }
 
             stream >> blk;
 
-            if (!isalpha (blk))
+            if (blk == '\n')
                 continue;
+
+            if (!isalpha (blk))
+                throw InvalidLevelData(_file);
 
             entity = dynamic_cast<Block*>(b.create (parent, blk, QPoint(x, y)));
 
