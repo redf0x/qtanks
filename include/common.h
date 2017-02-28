@@ -11,5 +11,9 @@
 #include <QQmlApplicationEngine>
 #include <QTimer>
 #include <QApplication>
+#include <QDateTime>
+#include <QThread>
+#include <QMutex>
+#include <QRunnable>
 
 #include "Globals.h"

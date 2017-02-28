@@ -17,7 +17,9 @@ SOURCES += \
     src/Utility.cpp \
     src/KeyAssignmets.cpp \
     src/NpcController.cpp \
-    src/Loader.cpp
+    src/Loader.cpp \
+    src/ProjectileController.cpp \
+    src/WorkQueue.cpp
 
 HEADERS += \
     include/common.h \
@@ -33,7 +35,9 @@ HEADERS += \
     include/KeyAssignments.h \
     include/RTree.h \
     include/NpcController.h \
-    include/Loader.h
+    include/Loader.h \
+    include/ProjectileController.h \
+    include/WorkQueue.h
 
 RESOURCES += \
     qtanks.qrc

@@ -24,7 +24,7 @@ Rectangle {
 
         Repeater {
             model: battleField.npcItems
-            Bot { }
+            ActiveItem { }
         }
 
         Repeater {

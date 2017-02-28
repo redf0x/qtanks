@@ -20,6 +20,7 @@
         <file>ui/res/item_selector.png</file>
         <file>ui/res/gameover.png</file>
         <file>ui/res/title.png</file>
+        <file>ui/res/projectile.png</file>
     </qresource>
     <qresource prefix="/qml">
         <file>ui/game.qml</file>
@@ -31,6 +32,8 @@
         <file>ui/GameMenu.qml</file>
         <file>ui/start.qml</file>
         <file>ui/main.qml</file>
+        <file>ui/Projectile.qml</file>
+        <file>ui/ActiveItem.qml</file>
     </qresource>
     <qresource prefix="/data">
         <file>level.dat</file>

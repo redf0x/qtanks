@@ -6,8 +6,10 @@
 #include "ActiveItem.h"
 #include "UnitController.h"
 #include "NpcController.h"
+#include "ProjectileController.h"
 #include "KeyAssignments.h"
 #include "RTree.h"
+#include "WorkQueue.h"
 
 class GameScene : public QObject {
     Q_OBJECT
@@ -26,6 +28,7 @@ class GameScene : public QObject {
     Q_PROPERTY(QQmlListProperty<Block> bmap READ getBmap NOTIFY bmapChanged)
     Q_PROPERTY(QQmlListProperty<ActiveItem> playableItems READ getPlayableItems NOTIFY playableItemsChanged)
     Q_PROPERTY(QQmlListProperty<ActiveItem> npcItems READ getNpcItems NOTIFY npcItemsChanged)
+    Q_PROPERTY(QQmlListProperty<ActiveItem> projectiles READ getProjectiles NOTIFY projectilesChanged)
 
     typedef struct ObjectRTreeBox {
         ObjectRTreeBox() { }
@@ -54,6 +57,8 @@ public:
         _keyConfig->dump ();
         _playerCtl = new UnitController(this);
         _botCtl = new NpcController(this);
+        _projectileCtl = new ProjectileController(this);
+        wq = new WorkQueue(this);
     }
 
     ~GameScene();
@@ -64,25 +69,34 @@ public:
     QQmlListProperty<Block> getBmap ();
     QQmlListProperty<ActiveItem> getPlayableItems ();
     QQmlListProperty<ActiveItem> getNpcItems ();
+    QQmlListProperty<ActiveItem> getProjectiles ();
 
     void initialize (QString level);
     void reset ();
     void spawnPlayableItem (QPoint, QString = "");
     void spawnNpcItem (QPoint, QString = "");
+    void fireProjectile (ActiveItem*);
     void buildObjectsRTree ();
     Block* scanDirection (QRect&, ActiveItem::Direction);
     QList<ActiveItem*> checkImmediateCollisions (ActiveItem*);
+    QList<Entity*> checkImmediateCollisions (ActiveItem*, QList<Block*>&);
 
     KeyAssignments* getControllerConfig () const;
     int getBattleFieldWidth () const;
     int getBattleFieldHeight () const;
+    int getBlocksCount () const;
     void start ();
     void setFrozen (bool);
+    void removeProjectile (ActiveItem*);
+    void removeBlock (Block*);
+    void respawn (ActiveItem* a);
+    WorkQueue* getwq ();
 
 signals:
     void bmapChanged (QQmlListProperty<Block>);
     void playableItemsChanged (QQmlListProperty<ActiveItem>);
     void npcItemsChanged (QQmlListProperty<ActiveItem>);
+    void projectilesChanged (QQmlListProperty<ActiveItem>);
     void frozenChanged (bool);
     void enemyCounterChanged (int);
     void stageChanged (int);
@@ -90,18 +104,25 @@ signals:
 
 private:
     QList<ActiveItem*> getIntersectionsList (ActiveItem*, QList<ActiveItem*> &);
+    void freeze (QList<ActiveItem*> &);
+    void thaw (QList<ActiveItem*>& l);
+    void setFrozenState (QList<ActiveItem*>& l, bool s);
 
     QList<Block*> _bmap;
     QList<ActiveItem*> _playableItems;
     QList<ActiveItem*> _npcItems;
+    QList<ActiveItem*> _projectiles;
     UnitController* _playerCtl;
     NpcController* _botCtl;
+    ProjectileController* _projectileCtl;
     KeyAssignments* _keyConfig;
     ObjectRTree* _tree;
     QPoint _fieldSize;
     QTimer _timer;
     bool _frozen;
     int _enemyCounter, _stage, _playerCounter;
+    QMap<ActiveItem*, QPoint> _spawners;
+    WorkQueue* wq;
 };
 
 #endif // GAMESCENE_H

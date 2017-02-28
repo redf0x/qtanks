@@ -10,6 +10,7 @@ UnitController::UnitController(QObject* parent) : QObject(parent)
             throw InvalidOwnership(parent);
 
         scene = qobject_cast<GameScene*>(parent);
+        blkcnt = scene->getBlocksCount ();
 }
 
 void UnitController::msgDirectionChanged (ActiveItem* a)
@@ -19,17 +20,10 @@ void UnitController::msgDirectionChanged (ActiveItem* a)
     Block* block = nullptr;
     int distance = 0;
 
-    if (target)
-        qDebug() << a->getObjectId () << " now @ (" << target->x () << ", " \
-                 << target->y () << ")";
+    if (a->getFrozen ())
+        return;
 
     block = scene->scanDirection (location, a->getDirection ());
-
-    if (block)
-        qDebug() << "Obstacle @ " << block->getLinkedObject ()->x () << "," << block->getLinkedObject ()->y () <<   \
-                    block->getLinkedObject ()->width () << "x" << block->getLinkedObject ()->height ();
-    else
-        qDebug() << "No obstacles found";
 
     switch (a->getDirection ()) {
         case ActiveItem::SOUTH:
@@ -61,15 +55,37 @@ void UnitController::msgDirectionChanged (ActiveItem* a)
     }
 
     a->setDistance (distance);
-    qDebug() << "new distance" << a->getDistance ();
 }
 
 void UnitController::msgTick (ActiveItem* a)
 {
+    if (a->getFrozen ()) {
+        if (a->isSpawned ()) {
+            qDebug() << "run actions for" << a->getObjectId ();
+            a->setArmor (1);
+            a->setRotation (0);
+            a->setDirection (ActiveItem::Direction::SOUTH);
+            a->setDistance (0);
+            a->setAlive (true);
+            a->setFrozen (false);
+        }
 
+        return;
+    }
+
+    if (getScene ()->getBlocksCount () != blkcnt) {
+        qDebug() << "rebuild routes";
+        blkcnt = getScene ()->getBlocksCount ();
+        msgDirectionChanged (a);
+    }
 }
 
 GameScene* UnitController::getScene () const
 {
     return scene;
+}
+
+void UnitController::msgFired (ActiveItem* a)
+{
+    getScene ()->fireProjectile (a);
 }

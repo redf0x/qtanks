@@ -5,15 +5,15 @@ void NpcController::msgTick (ActiveItem* a)
 {
     QList<ActiveItem*> c;
 
+    UnitController::msgTick (a);
+
     if (a->getFrozen ())
         return;
 
     c = getScene()->checkImmediateCollisions (a);
 
-    if (!c.empty ()) {
-        qDebug() << a->getObjectId () << "collides";
+    if (!c.empty ())
         a->setDistance (0);
-    }
 
     if (!a->getDistance ()) {
         int newDir = (rand () % (((int)ActiveItem::Direction::WEST) + 1));
@@ -34,23 +34,23 @@ void NpcController::msgTick (ActiveItem* a)
 
         switch (a->getDirection ()) {
             case ActiveItem::Direction::NORTH:
-                rect.translate (0, -2);
+                rect.translate (0, -Globals::npcBaseSpeed);
                 break;
 
             case ActiveItem::Direction::SOUTH:
-                rect.translate (0, 2);
+                rect.translate (0, Globals::npcBaseSpeed);
                 break;
 
             case ActiveItem::Direction::WEST:
-                rect.translate (-2, 0);
+                rect.translate (-Globals::npcBaseSpeed, 0);
                 break;
 
             case ActiveItem::Direction::EAST:
-                rect.translate (2, 0);
+                rect.translate (Globals::npcBaseSpeed, 0);
                 break;
         }
 
         lo->setPosition (QPointF(rect.x (), rect.y ()));
-        a->setDistance (a->getDistance () - 2);
+        a->setDistance (a->getDistance () - Globals::npcBaseSpeed);
     }
 }

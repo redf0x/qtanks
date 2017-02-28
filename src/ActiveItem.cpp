@@ -1,7 +1,8 @@
 #include "ActiveItem.h"
 
 ActiveItem::ActiveItem(QObject* parent, int rotation, ActiveItem::ActiveItemType type, UnitController* u) :
-    Entity(parent), _type(type), _uc(u), _frozen(false), _distance(0), texOverriden(false)
+    Entity(parent), _type(type), _uc(u), _frozen(false), _distance(0), texOverriden(false), _fired(false),
+    _spawned(true), _alive(true)
 {
     setRotation (rotation);
     setDirection (Direction::SOUTH);
@@ -30,6 +31,11 @@ QString ActiveItem::getTextureSource () const
 
         case NPC:
             name = "tank_basic";
+            break;
+
+        case PROJECTILE:
+            name = "projectile";
+            break;
 
         default:
             break;
@@ -74,6 +80,8 @@ Entity* ActiveItem::createObject (QObject* parent, char type, QPoint pos)
         z->setY (pos.y ());
     }
 
+    z->setArmor (1);
+
     return z;
 }
 
@@ -116,4 +124,49 @@ void ActiveItem::setFrozen (bool f)
         _frozen = f;
         emit frozenChanged(f);
     }
+}
+
+void ActiveItem::setFired (bool f)
+{
+    if (f != _fired) {
+        _fired = f;
+
+        if (_uc && _fired)
+            _uc->msgFired (this);
+
+        emit firedChanged(_fired);
+    }
+}
+
+bool ActiveItem::getFired () const
+{
+    return _fired;
+}
+
+void ActiveItem::setSpawned (bool s)
+{
+    if (_spawned == s)
+        return;
+
+    _spawned = s;
+    emit spawnedChanged(_spawned);
+}
+
+void ActiveItem::setAlive (bool a)
+{
+    if (_alive == a)
+        return;
+
+    _alive = a;
+    emit aliveChanged(_alive);
+}
+
+bool ActiveItem::isSpawned () const
+{
+    return _spawned;
+}
+
+bool ActiveItem::isAlive () const
+{
+    return _alive;
 }

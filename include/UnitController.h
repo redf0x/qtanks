@@ -14,12 +14,14 @@ public:
 
     virtual void msgDirectionChanged (ActiveItem*);
     virtual void msgTick (ActiveItem*);
+    virtual void msgFired (ActiveItem*);
 
 protected:
     virtual GameScene* getScene () const;
 
 private:
     GameScene* scene;
+    int blkcnt;
 };
 
 #endif // UNITCONTROLLER_H

@@ -16,6 +16,9 @@ public:
     Q_PROPERTY(Direction direction READ getDirection WRITE setDirection NOTIFY directionChanged)
     Q_PROPERTY(int distance READ getDistance WRITE setDistance NOTIFY distanceChanged)
     Q_PROPERTY(bool frozen READ getFrozen WRITE setFrozen NOTIFY frozenChanged)
+    Q_PROPERTY(bool fired READ getFired WRITE setFired NOTIFY firedChanged)
+    Q_PROPERTY(bool spawned READ isSpawned WRITE setSpawned NOTIFY spawnedChanged)
+    Q_PROPERTY(bool alive READ isAlive WRITE setAlive NOTIFY aliveChanged)
 
     explicit ActiveItem(QObject* parent = 0, int rotation = 0, ActiveItemType type = NONE, UnitController* u = nullptr);
 
@@ -25,20 +28,29 @@ public:
     virtual int getHeight () const;
     int getDistance () const;
     bool getFrozen () const;
+    bool getFired () const;
+    bool isSpawned () const;
+    bool isAlive () const;
 
     void setDirection (Direction);
     void setUnitController (UnitController*);
     void setDistance (int);
     void overrideTexture (bool);
     void setFrozen (bool);
+    void setFired (bool);
+    void setSpawned (bool);
+    void setAlive (bool);
 
 protected:
     virtual Entity* createObject (QObject *parent, char type, QPoint pos);
 
 signals:
-    void distanceChanged (int);
-    void directionChanged (Direction);
-    void frozenChanged (bool);
+    void distanceChanged (int distance);
+    void directionChanged (Direction direction);
+    void frozenChanged (bool frozen);
+    void firedChanged (bool fired);
+    void spawnedChanged (bool spawned);
+    void aliveChanged (bool alive);
 
 public slots:
     void tick ();
@@ -50,6 +62,7 @@ private:
     bool _frozen;
     int _distance;
     bool texOverriden;
+    bool _fired, _spawned, _alive;
 };
 
 #endif // ACTIVEITEM_H

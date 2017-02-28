@@ -4,6 +4,8 @@ import Tanks.Globals 0.1
 
 Item {
     id: player
+    property int blink: 0
+    signal userAction(var c)
 
     x: (modelData.x * width) / 2
     y: (modelData.y * height) / 2
@@ -12,12 +14,15 @@ Item {
     focus: true
     objectName: "linked_" + modelData.objectId
 
-    Component.onCompleted: modelData.linkObject(player);
-    signal userAction(var c)
+    Component.onCompleted: { modelData.linkObject(player);
+        console.log(objectName);
+        console.log(aiTexture.source);
+        console.log(x+","+y+","+width+","+height);
+    }
 
     Rectangle {
         Image {
-            id: tankTexture
+            id: aiTexture
             anchors.fill: parent
             source: modelData.texture
             rotation: modelData.rotation
@@ -27,11 +32,36 @@ Item {
         border.color: "blue"
         border.width: 2
         color: "transparent"
+        visible: modelData.spawned
+    }
+
+    Timer {
+        id: timer
+        interval: 300
+        repeat: true
+        onTriggered: {
+            if (blink < 6) {
+                aiTexture.visible = !aiTexture.visible;
+                blink++;
+            } else {
+                timer.stop ();
+                blink = 0;
+            }
+        }
+    }
+
+    Connections {
+        target: modelData
+        onAliveChanged: {
+            if (alive) {
+                timer.start ();
+            }
+        }
     }
 
     function rotateCCW() {
         modelData.rotation += -90;
-        tankTexture.rotation = modelData.rotation;
+        texture.rotation = modelData.rotation;
 
         if (modelData.direction - 1 < ActiveItem.NORTH) {
             modelData.direction = ActiveItem.WEST;
@@ -42,7 +72,7 @@ Item {
 
     function rotateCW() {
         modelData.rotation += 90;
-        tankTexture.rotation = modelData.rotation;
+        texture.rotation = modelData.rotation;
 
         if (modelData.direction + 1 > ActiveItem.WEST) {
             modelData.direction = ActiveItem.NORTH;
@@ -53,50 +83,51 @@ Item {
 
     function turn(direction) {
         switch (direction) {
-            case ActiveItem.NORTH:
-                switch (modelData.direction) {
-                    case ActiveItem.EAST:
-                        rotateCCW();
-                        break;
+        case ActiveItem.NORTH:
+            switch (modelData.direction) {
+                case ActiveItem.EAST:
+                    rotateCCW();
+                    break;
 
-                    case ActiveItem.WEST:
-                        rotateCW();
-                }
+                case ActiveItem.WEST:
+                    rotateCW();
+            }
 
-                return;
+            return;
 
-            case ActiveItem.SOUTH:
-                switch (modelData.direction) {
-                    case ActiveItem.EAST:
-                        rotateCW();
-                        break;
+        case ActiveItem.SOUTH:
+            switch (modelData.direction) {
+                case ActiveItem.EAST:
+                    rotateCW();
+                    break;
 
-                    case ActiveItem.WEST:
-                        rotateCCW();
-                }
+                case ActiveItem.WEST:
+                    rotateCCW();
+            }
 
-                return;
+            return;
 
-            case ActiveItem.EAST:
-                switch (modelData.direction) {
-                    case ActiveItem.NORTH:
-                        rotateCW();
-                        break;
-                    case ActiveItem.SOUTH:
-                        rotateCCW();
-                }
+        case ActiveItem.EAST:
+            switch (modelData.direction) {
+                case ActiveItem.NORTH:
+                    rotateCW();
+                    break;
 
-                return;
+                case ActiveItem.SOUTH:
+                    rotateCCW();
+            }
 
-            case ActiveItem.WEST:
-                switch (modelData.direction) {
-                    case ActiveItem.NORTH:
-                        rotateCCW();
-                        break;
+            return;
 
-                    case ActiveItem.SOUTH:
-                        rotateCW();
-                }
+        case ActiveItem.WEST:
+            switch (modelData.direction) {
+                case ActiveItem.NORTH:
+                    rotateCCW();
+                    break;
+
+                case ActiveItem.SOUTH:
+                    rotateCW();
+            }
         }
     }
 
@@ -110,12 +141,15 @@ Item {
             case ActiveItem.SOUTH:
                 y = y + scale;
                 break;
+
             case ActiveItem.NORTH:
                 y = y - scale;
                 break;
+
             case ActiveItem.EAST:
                 x = x + scale;
                 break;
+
             case ActiveItem.WEST:
                 x = x - scale;
         }
@@ -125,8 +159,8 @@ Item {
 
     Keys.onPressed: {
         if ((event.key == controller.keyWest || event.key == controller.keyEast ||
-                event.key == controller.keySouth || event.key == controller.keyNorth ||
-                event.key == controller.keyFire) && battleField.frozen)
+             event.key == controller.keySouth || event.key == controller.keyNorth ||
+             event.key == controller.keyFire) && battleField.frozen)
             return;
 
         switch (event.key) {
@@ -148,6 +182,10 @@ Item {
 
             case controller.keyPause:
                 battleField.frozen = !battleField.frozen;
+                break;
+
+            case controller.keyFire:
+                modelData.fired = true;
                 break;
 
             case Qt.Key_Escape:

@@ -16,6 +16,7 @@ public:
     Q_PROPERTY(QString objectId READ getObjectId CONSTANT)
     Q_PROPERTY(QString texture READ getTextureSource WRITE setTextureSource NOTIFY textureChanged)
     Q_PROPERTY(int zlevel READ getZLevel CONSTANT)
+    Q_PROPERTY(int armor READ getArmor WRITE setArmor NOTIFY armorChanged)
 
     explicit Entity(QObject* parent = 0) : QObject(parent), _rotation(0), _solid(true), _linkedObject(0), _z(1) { }
 
@@ -28,6 +29,7 @@ public:
     virtual int getRotation () const;
     virtual int getZLevel () const;
     virtual bool isSolid () const;
+    virtual int getArmor () const;
 
     virtual void setObjectId (QString id);
     virtual void setX (int);
@@ -35,6 +37,7 @@ public:
     virtual void setTextureSource (const QString&);
     virtual void setRotation (int);
     virtual void setSolid (bool);
+    virtual void setArmor (int);
     virtual QQuickItem* getLinkedObject () const;
     virtual Entity* create (QObject* parent, char sign, QPoint pos);
 
@@ -46,6 +49,7 @@ signals:
     void yChanged (int);
     void rotationChanged (int);
     void textureChanged (QString);
+    void armorChanged (int);
 
 public slots:
     void linkObject (QVariant);
@@ -56,6 +60,7 @@ private:
     int _x;
     int _y;
     int _rotation;
+    int _armor;
     bool _solid;
     QQuickItem* _linkedObject;
 

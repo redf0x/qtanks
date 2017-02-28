@@ -8,7 +8,7 @@
 #define K_EAST  "key.east"
 #define K_WEST  "key.west"
 #define K_PAUSE "key.pause"
-#define K_FIRE  "key.file"
+#define K_FIRE  "key.fire"
 
 #define keyNorth_default    Qt::Key_Up
 #define keySouth_default    Qt::Key_Down

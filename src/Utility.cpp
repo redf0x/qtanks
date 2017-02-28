@@ -28,3 +28,12 @@ void qml_dump_objects (QList<QObject*> nodes)
             }
     }
 }
+
+void msleep (int ms)
+{
+#ifdef WIN32
+    Sleep (ms);
+#else
+    usleep (ms * 1000);
+#endif
+}

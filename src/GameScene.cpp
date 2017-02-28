@@ -2,6 +2,7 @@
 
 #include "GameScene.h"
 #include "MapBuilder.h"
+#include "Utility.h"
 
 GameScene::~GameScene()
 {
@@ -11,6 +12,8 @@ GameScene::~GameScene()
     _playableItems.clear ();
     qDeleteAll (_npcItems);
     _npcItems.clear ();
+    qDeleteAll (_projectiles);
+    _projectiles.clear ();
     delete _tree;
 }
 
@@ -39,6 +42,11 @@ QQmlListProperty<ActiveItem> GameScene::getNpcItems ()
     return QQmlListProperty<ActiveItem>(this, _npcItems);
 }
 
+QQmlListProperty<ActiveItem> GameScene::getProjectiles ()
+{
+    return QQmlListProperty<ActiveItem>(this, _projectiles);
+}
+
 void GameScene::spawnPlayableItem (QPoint pos, QString texOverride)
 {
     ActiveItem s, *p;
@@ -47,6 +55,7 @@ void GameScene::spawnPlayableItem (QPoint pos, QString texOverride)
     p->setObjectId(QString("player"));
     p->setObjectName (p->getObjectId ());
     p->setUnitController (_playerCtl);
+    QObject::connect (&_timer, SIGNAL(timeout()), p, SLOT(tick()));
 
     if (!texOverride.isEmpty ()) {
         p->overrideTexture (true);
@@ -86,6 +95,12 @@ void GameScene::reset ()
     _playableItems.clear ();
     qDeleteAll (tmp1);
 
+    QList<ActiveItem*> tmp2(_projectiles);
+
+    _projectiles.clear ();
+    qDeleteAll (tmp2);
+
+    _spawners.clear ();
     _enemyCounter = Globals::enemyCount;
 }
 
@@ -187,8 +202,27 @@ Block* GameScene::scanDirection (QRect& target, ActiveItem::Direction direction)
 
 void GameScene::start ()
 {
+    QQuickItem* o;
+
+    for (QList<ActiveItem*>::iterator i = _npcItems.begin ();
+         i != _npcItems.end (); i++) {
+        o = (*i)->getLinkedObject ();
+        _spawners.insert ((*i), QPoint(o->x (), o->y ()));
+    }
+
+    for (QList<ActiveItem*>::iterator i = _playableItems.begin ();
+         i != _playableItems.end (); i++) {
+        o = (*i)->getLinkedObject ();
+        _spawners.insert ((*i), QPoint(o->x (), o->y ()));
+    }
+
     _frozen = false;
     _timer.start ();
+
+    qDebug() << "bounding rect" << _playableItems.first ()->getLinkedObject()->boundingRect();
+    qDebug() << "visible" << _playableItems.first ()->getLinkedObject()->isVisible();
+    qDebug() << "alive" << _playableItems.first ()->isAlive();
+    qDebug() << "spawned" << _playableItems.first ()->isSpawned();
 }
 
 bool GameScene::getFrozen () const
@@ -196,23 +230,40 @@ bool GameScene::getFrozen () const
     return _frozen;
 }
 
+void GameScene::freeze (QList<ActiveItem*>& l)
+{
+    setFrozenState (l, true);
+}
+
+void GameScene::thaw (QList<ActiveItem*>& l)
+{
+    setFrozenState (l, false);
+}
+
+void GameScene::setFrozenState (QList<ActiveItem*>& l, bool s)
+{
+    QList<ActiveItem*>::iterator i;
+
+    for (i = l.begin (); i != l.end (); i++)
+        (*i)->setFrozen (s);
+}
+
 void GameScene::setFrozen (bool p)
 {
     if (p != _frozen) {
-        QList<ActiveItem*>::iterator i;
-
         _frozen = p;
 
-        if (_frozen)
+        if (_frozen) {
             _timer.stop ();
-        else
+            freeze (_playableItems);
+            freeze (_npcItems);
+            freeze (_projectiles);
+        } else {
             _timer.start ();
-
-        for (i = _playableItems.begin (); i != _playableItems.end (); i++)
-            (*i)->setFrozen (_frozen);
-
-        for (i = _npcItems.begin (); i != _npcItems.end (); i++)
-            (*i)->setFrozen (_frozen);
+            thaw (_playableItems);
+            thaw (_npcItems);
+            thaw (_projectiles);
+        }
 
         emit frozenChanged(_frozen);
     }
@@ -261,4 +312,148 @@ QList<ActiveItem*> GameScene::checkImmediateCollisions (ActiveItem* a)
     collisions += getIntersectionsList (a, _npcItems);
 
     return collisions;
+}
+
+QList<Entity*> GameScene::checkImmediateCollisions (ActiveItem* a, QList<Block*>& list)
+{
+    QList<ActiveItem*> c;
+    QList<Entity*> collisions;
+
+    c = checkImmediateCollisions (a);
+
+    if (!list.empty ())
+        for (QList<Block*>::iterator i = list.begin (); i != list.end (); i++) {
+            QQuickItem* q = a->getLinkedObject ();
+            QRect r1(q->x (), q->y (), q->width (), q->height ()), r2;
+
+            q = (*i)->getLinkedObject ();
+            r2 = QRect(q->x (), q->y (), q->width (), q->height ());
+
+            if (r1.intersects (r2))
+                collisions << dynamic_cast<Entity*>(*i);
+        }
+
+    if (!c.empty ())
+        for (QList<ActiveItem*>::iterator i = c.begin (); i != c.end (); i++)
+            collisions << dynamic_cast<Entity*>(*i);
+
+    return collisions;
+}
+
+void GameScene::fireProjectile (ActiveItem * a)
+{
+    ActiveItem s, *p;
+    QQuickItem* lo = a->getLinkedObject ();
+    QRect r(lo->x (), lo->y (), lo->width (), lo->height ());
+    int sx = 0, sy = 0;
+
+    switch (a->getDirection ()) {
+        case ActiveItem::Direction::NORTH:
+            if (r.y () < 16)
+                return;
+            r.translate (0, -r.height () / 4);
+            sx = r.width () / 2 - 4;
+            break;
+
+        case ActiveItem::Direction::SOUTH:
+            if (r.y () > getBattleFieldHeight () - 16)
+                return;
+            r.translate (0, r.height ());
+            sx = r.width () / 2 - 4;
+            break;
+
+        case ActiveItem::Direction::EAST:
+            if (r.x () > getBattleFieldWidth () - 16)
+                return;
+            r.translate (r.width (), 0);
+            sy = r.height () / 2 - 4;
+            break;
+
+        case ActiveItem::Direction::WEST:
+            if (r.x () < 16)
+                return;
+            r.translate (-r.width () / 4, 0);
+            sy = r.height () / 2 - 4;
+    }
+
+    p = dynamic_cast<ActiveItem*>(s.create (this, ActiveItem::ActiveItemType::PROJECTILE,
+                                            QPoint(r.x () + sx, r.y () + sy)));
+    p->setFrozen (true);
+    QObject::connect (&_timer, SIGNAL(timeout()), p, SLOT(tick()));
+    p->setUnitController (_projectileCtl);
+    p->setDirection (a->getDirection ());
+    p->setRotation (a->getRotation ());
+    p->setObjectId (QString("projectile%1").arg (QDateTime::currentMSecsSinceEpoch ()));
+    p->setObjectName (p->getObjectId ());
+    _projectiles << p;
+    a->setFired (false);
+    p->setFrozen (false);
+
+    emit projectilesChanged(getProjectiles ());
+}
+
+void GameScene::removeProjectile (ActiveItem *a)
+{
+    if (_projectiles.empty ())
+        return;
+
+    _projectiles.removeOne (a);
+    emit projectilesChanged(getProjectiles ());
+}
+
+void GameScene::removeBlock (Block *b)
+{
+    QQuickItem* l;
+    ObjectRTreeBox item;
+
+    if (_bmap.empty ())
+        return;
+
+    _bmap.removeOne (b);
+    emit bmapChanged(getBmap ());
+    l = b->getLinkedObject ();
+    item = ObjectRTreeBox(l->x (), l->y (), l->width (), l->height ());
+    _tree->Remove (item.min, item.max, b);
+    delete b;
+}
+
+int GameScene::getBlocksCount () const
+{
+    return _bmap.size ();
+}
+
+class Respawner : public QRunnable {
+public:
+    Respawner(ActiveItem* item) {
+        setAutoDelete(true);
+        this->item = item;
+    }
+
+    void run () {
+        msleep (2000);
+        item->setSpawned (true);
+    }
+
+private:
+    ActiveItem* item;
+};
+
+void GameScene::respawn (ActiveItem* a)
+{
+    Respawner* resp;
+    QPoint pt;
+
+    a->setFrozen (true);
+    a->setAlive (false);
+    a->setSpawned (false);
+    pt = _spawners [a];
+    a->getLinkedObject ()->setX (pt.x ());
+    a->getLinkedObject ()->setY (pt.y ());
+    resp = new Respawner(a);
+    wq->run_task (resp);
+}
+
+WorkQueue* GameScene::getwq ()
+{
+    return wq;
 }

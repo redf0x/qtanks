@@ -45,10 +45,12 @@ Entity* Block::createObject (QObject* parent, char sign, QPoint pos)
     switch (_tolower(sign)) {
         case 'b':
             e = new Block(parent, 0, true, BRICK);
+            e->setArmor (1);
             break;
 
         case 's':
             e = new Block(parent, 0, true, STEEL);
+            e->setArmor (std::numeric_limits<int>::max ());
             break;
 
         case 'f':

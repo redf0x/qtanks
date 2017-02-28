@@ -109,3 +109,16 @@ int Entity::getZLevel () const
 {
     return _z;
 }
+
+void Entity::setArmor (int a)
+{
+    if (a != _armor) {
+        _armor = a;
+        emit armorChanged(_armor);
+    }
+}
+
+int Entity::getArmor () const
+{
+    return _armor;
+}
