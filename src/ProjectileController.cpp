@@ -71,8 +71,11 @@ void ProjectileController::msgTick (ActiveItem *a)
 
 void ProjectileController::destroyProjectile (ActiveItem* a)
 {
-    getScene ()->removeProjectile (a);
-    delete a;
+    if (a->getFrozen ())
+        return;
+
+    if (getScene ())
+        getScene ()->removeProjectile (a);
 }
 
 void ProjectileController::msgDirectionChanged (ActiveItem* a)

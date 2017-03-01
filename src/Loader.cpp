@@ -1,4 +1,5 @@
 #include "Loader.h"
+#include "Utility.h"
 
 Loader::Loader(QObject* parent) : QObject(parent)
 {
@@ -18,6 +19,11 @@ void Loader::titleScreen ()
     emit contentRequest(QString("qrc:/qml/ui/start.qml"));
 }
 
+void Loader::gameOverScreen ()
+{
+    emit contentRequest(QString("qrc:/qml/ui/gameover.qml"));
+}
+
 void Loader::gameScreen ()
 {
     game = new GameScene(this->parent ());
@@ -30,7 +36,14 @@ void Loader::gameScreen ()
     ((QQmlApplicationEngine*)parent ())->rootContext ()->setContextProperty ("controller", game->getControllerConfig ());
     emit contentRequest(QString("qrc:/qml/ui/game.qml"));
     game->buildObjectsRTree ();
+    QObject::connect(game, SIGNAL(winCondition(int)), this, SLOT(userWin(int)));
     game->start ();
+}
+
+void Loader::userWin (int stage)
+{
+    Q_UNUSED(stage)
+    userAction (Globals::GAMEOVER);
 }
 
 void Loader::userAction (int c)
@@ -45,11 +58,21 @@ void Loader::userAction (int c)
             gameScreen ();
             break;
 
+        case Globals::GAMEOVER:
+            terminateGame ();
+            gameOverScreen ();
+            break;
+
         case Globals::CANCEL_GAME:
-            qDebug() << "User aborted game";
-            game->reset ();
-            delete game;
-            game = 0;
+            terminateGame ();
             titleScreen ();
     }
+}
+
+void Loader::terminateGame()
+{
+    game->reset ();
+    game->disconnect ();
+    delete game;
+    game = 0;
 }

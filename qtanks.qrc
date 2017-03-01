@@ -33,6 +33,7 @@
         <file>ui/main.qml</file>
         <file>ui/Projectile.qml</file>
         <file>ui/ActiveItem.qml</file>
+        <file>ui/gameover.qml</file>
     </qresource>
     <qresource prefix="/data">
         <file>level.dat</file>

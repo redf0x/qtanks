@@ -91,6 +91,7 @@ public:
     void removeBlock (Block*);
     void respawn (ActiveItem* a);
     WorkQueue* getwq ();
+    void finalize ();
 
 signals:
     void bmapChanged (QQmlListProperty<Block>);

@@ -13,7 +13,7 @@ public:
     static const int npcBaseSpeed = 4;
     static const int projectileSpeed = 10;
 
-    enum UserAction { EXIT, START, SETTINGS, HISCORE, CANCEL_GAME };
+    enum UserAction { EXIT, START, SETTINGS, HISCORE, CANCEL_GAME, GAMEOVER };
     Q_ENUMS(UserAction)
 };
 

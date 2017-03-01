@@ -85,6 +85,8 @@ void GameScene::spawnNpcItem (QPoint pos, QString texOverride)
 
 void GameScene::reset ()
 {
+    _timer.stop ();
+
     QList<Block*> tmp0(_bmap);
 
     _bmap.clear ();
@@ -218,11 +220,6 @@ void GameScene::start ()
 
     _frozen = false;
     _timer.start ();
-
-    qDebug() << "bounding rect" << _playableItems.first ()->getLinkedObject()->boundingRect();
-    qDebug() << "visible" << _playableItems.first ()->getLinkedObject()->isVisible();
-    qDebug() << "alive" << _playableItems.first ()->isAlive();
-    qDebug() << "spawned" << _playableItems.first ()->isSpawned();
 }
 
 bool GameScene::getFrozen () const
@@ -397,6 +394,8 @@ void GameScene::removeProjectile (ActiveItem *a)
     if (_projectiles.empty ())
         return;
 
+    a->disconnect ();
+    a->setUnitController (0);
     _projectiles.removeOne (a);
     emit projectilesChanged(getProjectiles ());
 }
@@ -516,11 +515,24 @@ void GameScene::respawn (ActiveItem* a)
     }
 
     /* Game over */
-    if (!_enemyCounter)
+    if (!_enemyCounter) {
+        finalize ();
         emit winCondition(_stage);
+    }
 }
 
 WorkQueue* GameScene::getwq ()
 {
     return wq;
+}
+
+void GameScene::finalize ()
+{
+    _timer.stop ();
+
+    /* freeze all bullets to prevent them from crushing us with spurious ticks */
+    for (QList<ActiveItem*>::iterator p = _projectiles.begin (); p != _projectiles.end (); p++) {
+        (*p)->setFrozen (true);
+        removeProjectile ((*p));
+    }
 }

@@ -16,14 +16,18 @@ public:
 
     void titleScreen ();
     void gameScreen ();
+    void gameOverScreen ();
 
 signals:
     void contentRequest (QVariant);
 
 public slots:
     void userAction (int c);
+    void userWin (int stage);
 
 private:
+    void terminateGame ();
+
     GameScene* game;
 };
 
