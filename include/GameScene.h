@@ -101,12 +101,15 @@ signals:
     void enemyCounterChanged (int);
     void stageChanged (int);
     void playerCounterChanged (int);
+    void winCondition (int);
 
 private:
     QList<ActiveItem*> getIntersectionsList (ActiveItem*, QList<ActiveItem*> &);
     void freeze (QList<ActiveItem*> &);
     void thaw (QList<ActiveItem*>& l);
     void setFrozenState (QList<ActiveItem*>& l, bool s);
+    void *stow_away_npcs ();
+    void restore_npcs (void*);
 
     QList<Block*> _bmap;
     QList<ActiveItem*> _playableItems;

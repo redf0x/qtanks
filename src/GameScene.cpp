@@ -438,19 +438,86 @@ private:
     ActiveItem* item;
 };
 
+void* GameScene::stow_away_npcs ()
+{
+    QPoint* cd = nullptr;
+
+    if (_npcItems.size ()) {
+        int k = 0;
+        cd = new QPoint[_npcItems.size ()];
+
+        for (QList<ActiveItem*>::iterator i = _npcItems.begin (); i != _npcItems.end (); i++, k++) {
+            cd [k].setX ((*i)->getX ());
+            cd [k].setY ((*i)->getY ());
+            (*i)->setX ((*i)->getLinkedObject ()->x ());
+            (*i)->setY ((*i)->getLinkedObject ()->y ());
+        }
+    }
+
+    return (void*)cd;
+}
+
+void GameScene::restore_npcs (void *cd)
+{
+    QPoint *pts = (QPoint*)cd;
+
+    if (pts != nullptr) {
+        int k = 0;
+
+        for (QList<ActiveItem*>::iterator i = _npcItems.begin (); i != _npcItems.end (); i++, k++) {
+            (*i)->getLinkedObject ()->setX ((*i)->getX ());
+            (*i)->getLinkedObject ()->setY ((*i)->getY ());
+            ((*i)->setX (pts [k].x ()));
+            ((*i)->setY (pts [k].y ()));
+        }
+
+        delete pts;
+    }
+}
+
 void GameScene::respawn (ActiveItem* a)
 {
     Respawner* resp;
     QPoint pt;
 
+    if (_enemyCounter - 1 >= 0)
+        _enemyCounter--;
+
+    emit enemyCounterChanged(_enemyCounter);
+
     a->setFrozen (true);
     a->setAlive (false);
     a->setSpawned (false);
-    pt = _spawners [a];
-    a->getLinkedObject ()->setX (pt.x ());
-    a->getLinkedObject ()->setY (pt.y ());
-    resp = new Respawner(a);
-    wq->run_task (resp);
+
+    /* when enemy counter drops to 3 we start to remove spawners */
+    if (_enemyCounter < 3 && !_npcItems.empty ()) {
+        ActiveItem* v = nullptr;
+        void* cache;
+
+        for (int i = 0; i < _npcItems.size (); i++)
+            if (!_npcItems [i]->isSpawned () && !_npcItems [i]->isAlive ()) {
+                v = _npcItems [i];
+                break;
+            }
+
+        _npcItems.removeOne (v);
+        v->disconnect ();
+        cache = stow_away_npcs ();
+        emit npcItemsChanged(getNpcItems ());
+        restore_npcs (cache);
+
+        delete v;
+    } else {    /* otherwise schedule respawn in 2 secs */
+        pt = _spawners [a];
+        a->getLinkedObject ()->setX (pt.x ());
+        a->getLinkedObject ()->setY (pt.y ());
+        resp = new Respawner(a);
+        wq->run_task (resp);
+    }
+
+    /* Game over */
+    if (!_enemyCounter)
+        emit winCondition(_stage);
 }
 
 WorkQueue* GameScene::getwq ()
