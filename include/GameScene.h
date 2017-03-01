@@ -11,6 +11,15 @@
 #include "RTree.h"
 #include "WorkQueue.h"
 
+typedef QList<ActiveItem*> ActorList;
+typedef QList<Block*> BlockList;
+typedef QList<Entity*> ObjectList;
+
+#define for_all(type, list, callback) for (QList<type>::iterator ptr = list.begin (); ptr != list.end (); ptr++) callback(*ptr)
+#define for_all_actors(list, callback) for_all(ActiveItem*, list, callback)
+#define for_all_blocks(list, callback) for_all(Block*, list, callback)
+#define for_all_objects(list, callback) for_all(Entity*, list, callback)
+
 class GameScene : public QObject {
     Q_OBJECT
 
@@ -51,6 +60,7 @@ class GameScene : public QObject {
 
 public:
     typedef RTree<Entity*, int, 2, float, 512> ObjectRTree;
+    typedef QList<ActiveItem*> ObjectList;
 
     explicit GameScene(QObject* parent = 0) : QObject(parent), _frozen(true), _stage(1), _playerCounter(1) {
         _keyConfig = new KeyAssignments(/* QString("keys.conf"), */ this);
@@ -66,6 +76,7 @@ public:
     int getColumns () const;
     int getRows () const;
     bool getFrozen () const;
+
     QQmlListProperty<Block> getBmap ();
     QQmlListProperty<ActiveItem> getPlayableItems ();
     QQmlListProperty<ActiveItem> getNpcItems ();
@@ -105,6 +116,7 @@ signals:
     void winCondition (int);
 
 private:
+    void dump_active_items (ActiveItem* i);
     QList<ActiveItem*> getIntersectionsList (ActiveItem*, QList<ActiveItem*> &);
     void freeze (QList<ActiveItem*> &);
     void thaw (QList<ActiveItem*>& l);
@@ -113,9 +125,9 @@ private:
     void restore_npcs (void*);
 
     QList<Block*> _bmap;
-    QList<ActiveItem*> _playableItems;
-    QList<ActiveItem*> _npcItems;
-    QList<ActiveItem*> _projectiles;
+    ActorList _playableItems;
+    ActorList _npcItems;
+    ActorList _projectiles;
     UnitController* _playerCtl;
     NpcController* _botCtl;
     ProjectileController* _projectileCtl;

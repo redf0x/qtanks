@@ -202,6 +202,11 @@ Block* GameScene::scanDirection (QRect& target, ActiveItem::Direction direction)
     return qobject_cast<Block*>(ctx.object);
 }
 
+void GameScene::dump_active_items(ActiveItem *i)
+{
+    qDebug() << i;
+}
+
 void GameScene::start ()
 {
     QQuickItem* o;
@@ -211,6 +216,8 @@ void GameScene::start ()
         o = (*i)->getLinkedObject ();
         _spawners.insert ((*i), QPoint(o->x (), o->y ()));
     }
+
+    for_all_actors(_npcItems, dump_active_items);
 
     for (QList<ActiveItem*>::iterator i = _playableItems.begin ();
          i != _playableItems.end (); i++) {
