@@ -52,7 +52,7 @@ class GameScene : public QObject {
 public:
     typedef RTree<Entity*, int, 2, float, 512> ObjectRTree;
 
-    explicit GameScene(QObject* parent = 0) : QObject(parent), _frozen(true), _stage(1) {
+    explicit GameScene(QObject* parent = 0) : QObject(parent), _frozen(true), _stage(1), _playerCounter(1) {
         _keyConfig = new KeyAssignments(/* QString("keys.conf"), */ this);
         _keyConfig->dump ();
         _playerCtl = new UnitController(this);
