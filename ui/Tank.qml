@@ -14,11 +14,7 @@ Item {
     focus: true
     objectName: "linked_" + modelData.objectId
 
-    Component.onCompleted: { modelData.linkObject(player);
-        console.log(objectName);
-        console.log(aiTexture.source);
-        console.log(x+","+y+","+width+","+height);
-    }
+    Component.onCompleted: { modelData.linkObject(player); }
 
     Rectangle {
         Image {

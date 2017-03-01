@@ -1,11 +1,7 @@
 <RCC>
     <qresource prefix="/image">
-        <file>ui/res/brick.png</file>
         <file>ui/res/deadflag.png</file>
         <file>ui/res/eagle.png</file>
-        <file>ui/res/forest.png</file>
-        <file>ui/res/iron.png</file>
-        <file>ui/res/steel.png</file>
         <file>ui/res/tank_armored.png</file>
         <file>ui/res/tank_basic.png</file>
         <file>ui/res/tank_fast.png</file>

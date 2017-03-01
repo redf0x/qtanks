@@ -48,7 +48,6 @@ void Loader::userWin (int stage)
 
 void Loader::userAction (int c)
 {
-    qDebug() << "user choice" << c;
     switch (c) {
         case Globals::EXIT:
             QApplication::quit ();

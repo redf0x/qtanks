@@ -28,8 +28,5 @@ Rectangle {
         color: "white"
     }
 
-    Keys.onPressed: {
-        console.log("key hit");
-        gameLdr.userAction(Globals.EXIT);
-    }
+    Keys.onPressed: { gameLdr.userAction(Globals.EXIT); }
 }

@@ -61,7 +61,6 @@ void UnitController::msgTick (ActiveItem* a)
 {
     if (a->getFrozen ()) {
         if (a->isSpawned ()) {
-            qDebug() << "run actions for" << a->getObjectId ();
             a->setArmor (1);
             a->setRotation (0);
             a->setDirection (ActiveItem::Direction::SOUTH);
@@ -74,7 +73,6 @@ void UnitController::msgTick (ActiveItem* a)
     }
 
     if (getScene ()->getBlocksCount () != blkcnt) {
-        qDebug() << "rebuild routes";
         blkcnt = getScene ()->getBlocksCount ();
         msgDirectionChanged (a);
     }
