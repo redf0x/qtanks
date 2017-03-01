@@ -26,14 +26,17 @@ class GameScene : public QObject {
     static const int columns = 26;
     static const int rows = 26;
 
+    /* battle field state flags and properties */
     Q_PROPERTY(int columns READ getColumns CONSTANT)
     Q_PROPERTY(int rows READ getRows CONSTANT)
     Q_PROPERTY(bool frozen READ getFrozen WRITE setFrozen NOTIFY frozenChanged)
 
+    /* counters/bindings to HUD */
     Q_PROPERTY(int enemyCounter MEMBER _enemyCounter NOTIFY enemyCounterChanged)
     Q_PROPERTY(int stage MEMBER _stage NOTIFY stageChanged)
     Q_PROPERTY(int playerTanks MEMBER _playerCounter NOTIFY playerCounterChanged)
 
+    /* game object lists */
     Q_PROPERTY(QQmlListProperty<Block> bmap READ getBmap NOTIFY bmapChanged)
     Q_PROPERTY(QQmlListProperty<ActiveItem> playableItems READ getPlayableItems NOTIFY playableItemsChanged)
     Q_PROPERTY(QQmlListProperty<ActiveItem> npcItems READ getNpcItems NOTIFY npcItemsChanged)
@@ -84,7 +87,7 @@ public:
 
     void initialize (QString level);
     void reset ();
-    void spawnPlayableItem (QPoint, QString = "");
+    void spawnPlayerItem (QPoint, QString = "");
     void spawnNpcItem (QPoint, QString = "");
     void fireProjectile (ActiveItem*);
     void buildObjectsRTree ();
@@ -124,13 +127,15 @@ private:
     void *stow_away_npcs ();
     void restore_npcs (void*);
 
-    QList<Block*> _bmap;
+    BlockList _bmap;
     ActorList _playableItems;
     ActorList _npcItems;
     ActorList _projectiles;
+
     UnitController* _playerCtl;
     NpcController* _botCtl;
     ProjectileController* _projectileCtl;
+
     KeyAssignments* _keyConfig;
     ObjectRTree* _tree;
     QPoint _fieldSize;
