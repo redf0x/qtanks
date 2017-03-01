@@ -25,8 +25,8 @@ Item {
         }
 
         anchors.fill: parent;
-        border.color: "blue"
-        border.width: 2
+//        border.color: "blue"
+//        border.width: 2
         color: "transparent"
         visible: modelData.spawned
     }

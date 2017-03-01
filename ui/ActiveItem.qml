@@ -11,12 +11,7 @@ Item {
     focus: false
     objectName: "linked_" + modelData.objectId
 
-
-    Component.onCompleted: { modelData.linkObject(ai);
-        console.log(objectName);
-        console.log(aiTexture.source);
-        console.log(x+","+y+","+width+","+height);
-    }
+    Component.onCompleted: { modelData.linkObject(ai); }
 
     Rectangle {
         Image {
@@ -27,8 +22,8 @@ Item {
         }
 
         anchors.fill: parent;
-        border.color: "blue"
-        border.width: 2
+        /* border.color: "blue" */
+        /* border.width: 2 */
         color: "transparent"
         visible: modelData.spawned
     }
