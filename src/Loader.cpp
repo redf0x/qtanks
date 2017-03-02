@@ -26,15 +26,14 @@ void Loader::gameOverScreen ()
 
 void Loader::gameScreen ()
 {
-    game = new GameScene(this->parent ());
+    game = new GameScene((QQmlApplicationEngine*)parent (), this->parent ());
     emit contentRequest(QString("qrc:/qml/ui/game.qml"));
     game->initialize (":/data/level.dat");
     game->spawnPlayerItem (QPoint(24, 24));
     game->spawnNpcItem (QPoint(0, 0), "qrc:/image/ui/res/tank_fast.png");
     game->spawnNpcItem (QPoint(13, 0));
     game->spawnNpcItem (QPoint(24, 0), "qrc:/image/ui/res/tank_armored.png");
-    ((QQmlApplicationEngine*)parent ())->rootContext ()->setContextProperty ("battleField", game);
-    ((QQmlApplicationEngine*)parent ())->rootContext ()->setContextProperty ("controller", game->getControllerConfig ());
+
     game->buildObjectsRTree ();
     QObject::connect(game, SIGNAL(winCondition(int)), this, SLOT(userWin(int)));
     game->start ();

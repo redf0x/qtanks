@@ -5,7 +5,7 @@ void NpcController::msgTick (ActiveItem* a)
 {
     QList<ActiveItem*> c;
 
-    UnitController::msgTick (a);
+    PlayerController::msgTick (a);
 
     if (a->getFrozen ())
         return;
@@ -29,8 +29,7 @@ void NpcController::msgTick (ActiveItem* a)
         else
             a->setRotation (a->getRotation () - 90);
     } else {
-        QQuickItem* lo = a->getLinkedObject ();
-        QRectF rect(lo->x (), lo->y (), lo->width (), lo->height ());
+        QRectF rect(a->x (), a->y (), a->width (), a->height ());
 
         switch (a->getDirection ()) {
             case ActiveItem::Direction::NORTH:
@@ -50,7 +49,7 @@ void NpcController::msgTick (ActiveItem* a)
                 break;
         }
 
-        lo->setPosition (QPointF(rect.x (), rect.y ()));
+        a->setX (rect.x ()); a->setY (rect.y ());
         a->setDistance (a->getDistance () - Globals::npcBaseSpeed);
     }
 }

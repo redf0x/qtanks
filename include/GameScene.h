@@ -5,6 +5,7 @@
 #include "Block.h"
 #include "ActiveItem.h"
 #include "UnitController.h"
+#include "PlayerController.h"
 #include "NpcController.h"
 #include "ProjectileController.h"
 #include "KeyAssignments.h"
@@ -59,19 +60,29 @@ class GameScene : public QObject {
         Entity* object;
     } ObjectRTreeCtx;
 
+    typedef struct Cell {
+        int width;
+        int height;
+    } Cell;
+
     friend bool scanArea (Entity*, void*);
 
 public:
     typedef RTree<Entity*, int, 2, float, 512> ObjectRTree;
     typedef QList<ActiveItem*> ObjectList;
 
-    explicit GameScene(QObject* parent = 0) : QObject(parent), _frozen(true), _stage(1), _playerCounter(1) {
+    explicit GameScene(QQmlApplicationEngine* engine, QObject* parent = 0) : QObject(parent), _frozen(true),
+        _enemyCounter(Globals::enemyCount), _stage(1), _playerCounter(1) {
+        QQmlContext* ctx = engine->rootContext ();
+
         _keyConfig = new KeyAssignments(/* QString("keys.conf"), */ this);
         _keyConfig->dump ();
-        _playerCtl = new UnitController(this);
+        _playerCtl = new PlayerController(this);
         _botCtl = new NpcController(this);
         _projectileCtl = new ProjectileController(this);
         wq = new WorkQueue(this);
+        ctx->setContextProperty ("battleField", this);
+        ctx->setContextProperty ("controller", _keyConfig);
     }
 
     ~GameScene();
@@ -106,6 +117,8 @@ public:
     void respawn (ActiveItem* a);
     WorkQueue* getwq ();
     void finalize ();
+    enum MappingType { FROM_LOGICAL, FROM_PHYSICAL };
+    QRect mapRect (QRect&, MappingType);
 
 signals:
     void bmapChanged (QQmlListProperty<Block>);
@@ -118,14 +131,16 @@ signals:
     void playerCounterChanged (int);
     void winCondition (int);
 
+public slots:
+    void heightChanged (int newheight);
+    void widthChanged (int newwidth);
+
 private:
-    void dump_active_items (ActiveItem* i);
     QList<ActiveItem*> getIntersectionsList (ActiveItem*, QList<ActiveItem*> &);
     void freeze (QList<ActiveItem*> &);
     void thaw (QList<ActiveItem*>& l);
     void setFrozenState (QList<ActiveItem*>& l, bool s);
-    void *stow_away_npcs ();
-    void restore_npcs (void*);
+    void fixupObject (Block*);
 
     BlockList _bmap;
     ActorList _playableItems;
@@ -133,16 +148,17 @@ private:
     ActorList _projectiles;
 
     UnitController* _playerCtl;
-    NpcController* _botCtl;
-    ProjectileController* _projectileCtl;
+    UnitController* _botCtl;
+    UnitController* _projectileCtl;
 
     KeyAssignments* _keyConfig;
     ObjectRTree* _tree;
     QPoint _fieldSize;
+    Cell _cell;
     QTimer _timer;
     bool _frozen;
     int _enemyCounter, _stage, _playerCounter;
-    QMap<ActiveItem*, QPoint> _spawners;
+    QMap<QString, QPoint> _spawners;
     WorkQueue* wq;
 };
 

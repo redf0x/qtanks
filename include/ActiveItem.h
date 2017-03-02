@@ -13,6 +13,7 @@ public:
     enum Direction { NORTH, EAST, SOUTH, WEST };
 
     Q_ENUMS(ActiveItemType Direction)
+
     Q_PROPERTY(Direction direction READ getDirection WRITE setDirection NOTIFY directionChanged)
     Q_PROPERTY(int distance READ getDistance WRITE setDistance NOTIFY distanceChanged)
     Q_PROPERTY(bool frozen READ getFrozen WRITE setFrozen NOTIFY frozenChanged)
@@ -59,10 +60,8 @@ private:
     ActiveItemType _type;
     Direction _direction;
     UnitController* _uc;
-    bool _frozen;
     int _distance;
-    bool texOverriden;
-    bool _fired, _spawned, _alive;
+    bool _frozen, texOverriden, _fired, _spawned, _alive;
 };
 
 #endif // ACTIVEITEM_H

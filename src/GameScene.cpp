@@ -17,6 +17,45 @@ GameScene::~GameScene()
     delete _tree;
 }
 
+QRect GameScene::mapRect (QRect& source, MappingType mapping)
+{
+    QRect result;
+
+    switch (mapping) {
+        case FROM_LOGICAL:
+            result = QRect(source.x () * _cell.width,
+                           source.y () * _cell.height,
+                           source.width () * _cell.width,
+                           source.height () * _cell.height);
+            break;
+
+        case FROM_PHYSICAL:
+            result.setX (result.x () / _cell.width);
+            result.setY (result.y () / _cell.height);
+            result.setWidth (result.width () / _cell.width);
+            result.setHeight (result.height () / _cell.height);
+            break;
+    }
+
+    return result;
+}
+
+void GameScene::widthChanged (int newwidth)
+{
+    _fieldSize.setX (newwidth);
+    qDebug() << "reported field width" << _fieldSize.x ();
+    _cell.width = _fieldSize.x () / columns;
+    qDebug() << "logical cell width" << _cell.width;
+}
+
+void GameScene::heightChanged (int newheight)
+{
+    _fieldSize.setY (newheight);
+    qDebug() << "reported field height" << _fieldSize.y ();
+    _cell.height = _fieldSize.y () / rows;
+    qDebug() << "logical cell height" << _cell.height;
+}
+
 int GameScene::getColumns () const
 {
     return columns;
@@ -50,8 +89,13 @@ QQmlListProperty<ActiveItem> GameScene::getProjectiles ()
 void GameScene::spawnPlayerItem (QPoint pos, QString texOverride)
 {
     ActiveItem s, *p;
+    QRect realLoc;
 
-    p = dynamic_cast<ActiveItem*>(s.create (this, ActiveItem::ActiveItemType::PLAYER, pos));
+    realLoc = QRect(pos.x (), pos.y (), 2, 2);
+    realLoc = mapRect (realLoc, MappingType::FROM_LOGICAL);
+
+    p = dynamic_cast<ActiveItem*>(s.create (this, ActiveItem::ActiveItemType::PLAYER, QPoint(realLoc.x (), realLoc.y ())));
+    p->setWidth (realLoc.width ()); p->setHeight (realLoc.height ());
     p->setObjectId(QString("player"));
     p->setObjectName (p->getObjectId ());
     p->setUnitController (_playerCtl);
@@ -63,13 +107,20 @@ void GameScene::spawnPlayerItem (QPoint pos, QString texOverride)
     }
 
     _playableItems << p;
+    _spawners.insert (p->getObjectId (), QPoint(realLoc.x (), realLoc.y ()));
+    emit playableItemsChanged(getPlayableItems ());
 }
 
 void GameScene::spawnNpcItem (QPoint pos, QString texOverride)
 {
     ActiveItem s, *p;
+    QRect realLoc;
 
-    p = dynamic_cast<ActiveItem*>(s.create (this, ActiveItem::ActiveItemType::NPC, pos));
+    realLoc = QRect(pos.x (), pos.y (), 2, 2);
+    realLoc = mapRect (realLoc, MappingType::FROM_LOGICAL);
+
+    p = dynamic_cast<ActiveItem*>(s.create (this, ActiveItem::ActiveItemType::NPC, QPoint(realLoc.x (), realLoc.y ())));
+    p->setWidth (realLoc.width ()); p->setHeight (realLoc.height ());
     p->setObjectId(QString("npc@%1%2").arg (pos.x ()).arg (pos.y ()));
     p->setObjectName (p->getObjectId ());
     QObject::connect (&_timer, SIGNAL(timeout()), p, SLOT(tick()));
@@ -81,6 +132,8 @@ void GameScene::spawnNpcItem (QPoint pos, QString texOverride)
     }
 
     _npcItems << p;
+    _spawners.insert (p->getObjectId (), QPoint(realLoc.x (), realLoc.y ()));
+    emit npcItemsChanged(getNpcItems ());
 }
 
 void GameScene::reset ()
@@ -106,12 +159,23 @@ void GameScene::reset ()
     _enemyCounter = Globals::enemyCount;
 }
 
+void GameScene::fixupObject(Block* block)
+{
+    QRect rect(block->x (), block->y (), block->width (), block->height ());
+
+    rect = mapRect (rect, MappingType::FROM_LOGICAL);
+    block->setX (rect.x ()); block->setY (rect.y ());
+    block->setWidth (rect.width ()); block->setHeight (rect.height ());
+}
+
 void GameScene::initialize (QString level)
 {
     MapBuilder map(this, level, this);
 
     reset ();
     _bmap = map.spawnObjects (this);
+    for_all_blocks(_bmap, fixupObject);
+    emit bmapChanged(getBmap ());
     _timer.setInterval (100);
 }
 
@@ -128,14 +192,10 @@ void GameScene::buildObjectsRTree ()
 
     if (!_bmap.isEmpty ()) {
         for (b = _bmap.begin (); b != _bmap.end (); b++) {
-            QQuickItem* l = (*b)->getLinkedObject ();
-            ObjectRTreeBox item(l->x (), l->y (), l->width (), l->height ());
+            ObjectRTreeBox item((*b)->x (), (*b)->y (), (*b)->width (), (*b)->height ());
 
             _tree->Insert (item.min, item.max, *b);
         }
-
-        _fieldSize = QPoint(_bmap.first ()->getLinkedObject ()->parentItem ()->width (),
-                            _bmap.first ()->getLinkedObject ()->parentItem ()->height ());
     }
 }
 
@@ -152,8 +212,7 @@ int GameScene::getBattleFieldHeight () const
 bool scanArea (Entity* e, void* arg)
 {
     GameScene::ObjectRTreeCtx* ctx = (GameScene::ObjectRTreeCtx*)arg;
-    QQuickItem* lo = e->getLinkedObject ();
-    QRect r(lo->x (), lo->y (), lo->width (), lo->height ());
+    QRect r(e->x (), e->y (), e->width (), e->height ());
     QPoint p = r.center ();
     int distance = 0;
 
@@ -204,20 +263,6 @@ Block* GameScene::scanDirection (QRect& target, ActiveItem::Direction direction)
 
 void GameScene::start ()
 {
-    QQuickItem* o;
-
-    for (QList<ActiveItem*>::iterator i = _npcItems.begin ();
-         i != _npcItems.end (); i++) {
-        o = (*i)->getLinkedObject ();
-        _spawners.insert ((*i), QPoint(o->x (), o->y ()));
-    }
-
-    for (QList<ActiveItem*>::iterator i = _playableItems.begin ();
-         i != _playableItems.end (); i++) {
-        o = (*i)->getLinkedObject ();
-        _spawners.insert ((*i), QPoint(o->x (), o->y ()));
-    }
-
     _frozen = false;
     _timer.start ();
 }
@@ -269,30 +314,29 @@ void GameScene::setFrozen (bool p)
 QList<ActiveItem*> GameScene::getIntersectionsList (ActiveItem* a, QList<ActiveItem*>& list)
 {
     QList<ActiveItem*> rlist;
-    QQuickItem* q = a->getLinkedObject ();
-    QRect r1(q->x (), q->y (), q->width (), q->height ()), r2;
+    QRect r1(a->x (), a->y (), a->width (), a->height ()), r2;
 
     switch (a->getDirection ()) {
         case ActiveItem::NORTH:
-            r1.translate (0, -q->height () / 2);
+            r1.translate (0, -a->height () / 2);
             break;
 
         case ActiveItem::SOUTH:
-            r1.translate (0, q->height () / 2);
+            r1.translate (0, a->height () / 2);
             break;
 
         case ActiveItem::EAST:
-            r1.translate (q->width () / 2, 0);
+            r1.translate (a->width () / 2, 0);
             break;
 
         case ActiveItem::WEST:
-            r1.translate (-q->width () / 2, 0);
+            r1.translate (-a->width () / 2, 0);
     }
 
     for (QList<ActiveItem*>::iterator i = list.begin (); i != list.end (); i++)
         if (*i != a) {
-            q = (*i)->getLinkedObject ();
-            r2 = QRect(q->x (), q->y (), q->width (), q->height ());
+
+            r2 = QRect((*i)->x (), (*i)->y (), (*i)->width (), (*i)->height ());
 
             if (r1.intersects (r2))
                 rlist << (*i);
@@ -320,11 +364,8 @@ QList<Entity*> GameScene::checkImmediateCollisions (ActiveItem* a, QList<Block*>
 
     if (!list.empty ())
         for (QList<Block*>::iterator i = list.begin (); i != list.end (); i++) {
-            QQuickItem* q = a->getLinkedObject ();
-            QRect r1(q->x (), q->y (), q->width (), q->height ()), r2;
-
-            q = (*i)->getLinkedObject ();
-            r2 = QRect(q->x (), q->y (), q->width (), q->height ());
+            QRect r1(a->x (), a->y (), a->width (), a->height ()),
+                    r2((*i)->x (), (*i)->y (), (*i)->width (), (*i)->height ());
 
             if (r1.intersects (r2))
                 collisions << dynamic_cast<Entity*>(*i);
@@ -340,8 +381,7 @@ QList<Entity*> GameScene::checkImmediateCollisions (ActiveItem* a, QList<Block*>
 void GameScene::fireProjectile (ActiveItem * a)
 {
     ActiveItem s, *p;
-    QQuickItem* lo = a->getLinkedObject ();
-    QRect r(lo->x (), lo->y (), lo->width (), lo->height ());
+    QRect r(a->x (), a->y (), a->width (), a->height ());
     int sx = 0, sy = 0;
 
     switch (a->getDirection ()) {
@@ -375,6 +415,7 @@ void GameScene::fireProjectile (ActiveItem * a)
 
     p = dynamic_cast<ActiveItem*>(s.create (this, ActiveItem::ActiveItemType::PROJECTILE,
                                             QPoint(r.x () + sx, r.y () + sy)));
+    p->setWidth (_cell.width / 2); p->setHeight (_cell.height / 2);
     p->setFrozen (true);
     QObject::connect (&_timer, SIGNAL(timeout()), p, SLOT(tick()));
     p->setUnitController (_projectileCtl);
@@ -402,7 +443,6 @@ void GameScene::removeProjectile (ActiveItem *a)
 
 void GameScene::removeBlock (Block *b)
 {
-    QQuickItem* l;
     ObjectRTreeBox item;
 
     if (_bmap.empty ())
@@ -410,8 +450,7 @@ void GameScene::removeBlock (Block *b)
 
     _bmap.removeOne (b);
     emit bmapChanged(getBmap ());
-    l = b->getLinkedObject ();
-    item = ObjectRTreeBox(l->x (), l->y (), l->width (), l->height ());
+    item = ObjectRTreeBox(b->x (), b->y (), b->width (), b->height ());
     _tree->Remove (item.min, item.max, b);
     delete b;
 }
@@ -426,9 +465,11 @@ public:
     Respawner(ActiveItem* item) {
         setAutoDelete(true);
         this->item = item;
+        qDebug() << "schedule respawn for" << item->getObjectId ();
     }
 
     void run () {
+        qDebug() << item->getObjectId () << "waiting for respawn";
         msleep (2000);
         item->setSpawned (true);
     }
@@ -436,43 +477,6 @@ public:
 private:
     ActiveItem* item;
 };
-
-void* GameScene::stow_away_npcs ()
-{
-    QPoint* cd = nullptr;
-
-    if (_npcItems.size ()) {
-        int k = 0;
-        cd = new QPoint[_npcItems.size ()];
-
-        for (QList<ActiveItem*>::iterator i = _npcItems.begin (); i != _npcItems.end (); i++, k++) {
-            cd [k].setX ((*i)->getX ());
-            cd [k].setY ((*i)->getY ());
-            (*i)->setX ((*i)->getLinkedObject ()->x ());
-            (*i)->setY ((*i)->getLinkedObject ()->y ());
-        }
-    }
-
-    return (void*)cd;
-}
-
-void GameScene::restore_npcs (void *cd)
-{
-    QPoint *pts = (QPoint*)cd;
-
-    if (pts != nullptr) {
-        int k = 0;
-
-        for (QList<ActiveItem*>::iterator i = _npcItems.begin (); i != _npcItems.end (); i++, k++) {
-            (*i)->getLinkedObject ()->setX ((*i)->getX ());
-            (*i)->getLinkedObject ()->setY ((*i)->getY ());
-            ((*i)->setX (pts [k].x ()));
-            ((*i)->setY (pts [k].y ()));
-        }
-
-        delete pts;
-    }
-}
 
 void GameScene::respawn (ActiveItem* a)
 {
@@ -491,7 +495,6 @@ void GameScene::respawn (ActiveItem* a)
     /* when enemy counter drops to 3 we start to remove spawners */
     if (_enemyCounter < 3 && !_npcItems.empty ()) {
         ActiveItem* v = nullptr;
-        void* cache;
 
         for (int i = 0; i < _npcItems.size (); i++)
             if (!_npcItems [i]->isSpawned () && !_npcItems [i]->isAlive ()) {
@@ -501,15 +504,15 @@ void GameScene::respawn (ActiveItem* a)
 
         _npcItems.removeOne (v);
         v->disconnect ();
-        cache = stow_away_npcs ();
         emit npcItemsChanged(getNpcItems ());
-        restore_npcs (cache);
+        _spawners.remove (v->getObjectId ());
+        qDebug() << "entity" << v->getObjectId () << "eliminated, not respawning it anymore";
 
         delete v;
     } else {    /* otherwise schedule respawn in 2 secs */
-        pt = _spawners [a];
-        a->getLinkedObject ()->setX (pt.x ());
-        a->getLinkedObject ()->setY (pt.y ());
+        pt = _spawners [a->getObjectId ()];
+        a->setX (pt.x ());
+        a->setY (pt.y ());
         resp = new Respawner(a);
         wq->run_task (resp);
     }

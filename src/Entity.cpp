@@ -5,37 +5,44 @@ QString Entity::getTextureSource () const
     return _texture;
 }
 
-void Entity::setTextureSource (const QString& src)
+void Entity::setTextureSource (const QString& texture)
 {
-    if (_texture != src) {
-        _texture = src;
-        emit textureChanged(_texture);
-    }
+    set_if_changed(texture)
 }
 
-int Entity::getX () const
+int Entity::x () const
 {
     return _x;
 }
 
-int Entity::getY () const
+int Entity::y () const
 {
     return _y;
 }
 
-int Entity::getWidth() const
+int Entity::width () const
 {
-    return Globals::defaultEntityWidth;
+    return _width;
 }
 
-int Entity::getHeight () const
+int Entity::height () const
 {
-    return Globals::defaultEntityHeight;
+    return _height;
 }
 
 int Entity::getRotation () const
 {
     return _rotation;
+}
+
+void Entity::setHeight (int height)
+{
+    set_if_changed(height)
+}
+
+void Entity::setWidth (int width)
+{
+    set_if_changed(width)
 }
 
 QString Entity::getObjectId () const
@@ -50,20 +57,17 @@ void Entity::setObjectId (QString id)
 
 void Entity::setY (int y)
 {
-    _y = y;
+    set_if_changed(y)
 }
 
 void Entity::setX (int x)
 {
-    _x = x;
+    set_if_changed(x)
 }
 
 void Entity::setRotation (int rotation)
 {
-    if (rotation != _rotation) {
-        _rotation = rotation;
-        emit rotationChanged(_rotation);
-    }
+    set_if_changed(rotation)
 }
 
 bool Entity::isSolid () const
@@ -74,21 +78,6 @@ bool Entity::isSolid () const
 void Entity::setSolid (bool solid)
 {
     _solid = solid;
-}
-
-void Entity::linkObject (QVariant obj)
-{
-    QObject* object = qvariant_cast<QObject*>(obj);
-    QQuickItem* q = qobject_cast<QQuickItem*>(object);
-
-    if (q != NULL)
-        _linkedObject = q;
-}
-
-QQuickItem* Entity::getLinkedObject () const
-{
-    return _linkedObject;
-
 }
 
 Entity* Entity::create (QObject* parent, char sign, QPoint pos)
@@ -105,17 +94,14 @@ Entity* Entity::createObject (QObject* parent, char sign, QPoint pos)
     return nullptr;
 }
 
-int Entity::getZLevel () const
+int Entity::z () const
 {
     return _z;
 }
 
-void Entity::setArmor (int a)
+void Entity::setArmor (int armor)
 {
-    if (a != _armor) {
-        _armor = a;
-        emit armorChanged(_armor);
-    }
+    set_if_changed(armor)
 }
 
 int Entity::getArmor () const

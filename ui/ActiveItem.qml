@@ -4,14 +4,12 @@ Item {
     id: ai
     property int blink: 0
 
-    x: (modelData.x * width) / 2
-    y: (modelData.y * height) / 2
-    width: (battleArea.width / battleField.columns) * 2
-    height: (battleArea.height / battleField.rows) * 2
+    x: modelData.x
+    y: modelData.y
+    z: modelData.z
+    width: modelData.width
+    height: modelData.height
     focus: false
-    objectName: "linked_" + modelData.objectId
-
-    Component.onCompleted: { modelData.linkObject(ai); }
 
     Rectangle {
         Image {

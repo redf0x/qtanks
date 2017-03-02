@@ -7,14 +7,12 @@ Item {
     property int blink: 0
     signal userAction(var c)
 
-    x: (modelData.x * width) / 2
-    y: (modelData.y * height) / 2
-    width: (battleArea.width / battleField.columns) * 2
-    height: (battleArea.height / battleField.rows) * 2
+    x: modelData.x
+    y: modelData.y
+    z: modelData.z
+    width: modelData.width
+    height: modelData.height
     focus: true
-    objectName: "linked_" + modelData.objectId
-
-    Component.onCompleted: { modelData.linkObject(player); }
 
     Rectangle {
         Image {
@@ -150,6 +148,7 @@ Item {
                 x = x - scale;
         }
 
+        modelData.x = x; modelData.y = y;
         modelData.distance = modelData.distance - scale;
     }
 

@@ -5,11 +5,14 @@ Rectangle {
     color: "grey"
 
     Rectangle {
+        signal heightChanged(int newheight)
+        signal widthChanged(int newwidth)
+
         id: battleArea
         x: 32
         y: 32
-        height: 13 * 45
-        width: 13 * 45
+        height: /* Globals.fieldCellRows */ 26 * 22
+        width: /* Globals.fieldCellColumns */ 26 * 22
         color: "black"
 
         Repeater {
@@ -31,6 +34,11 @@ Rectangle {
             model: battleField.projectiles
             Projectile { }
         }
+
+        onHeightChanged: { battleField.heightChanged(height); }
+        onWidthChanged: { battleField.widthChanged(width); }
+        Component.onCompleted: { heightChanged(height); widthChanged(width);
+        console.log("field cols/rows " + Globals.fieldCellRows); }
     }
 
     HUD {

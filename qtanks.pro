@@ -13,13 +13,14 @@ SOURCES += \
     src/GameScene.cpp \
     src/MapBuilder.cpp \
     src/ActiveItem.cpp \
-    src/UnitController.cpp \
     src/Utility.cpp \
     src/KeyAssignmets.cpp \
     src/NpcController.cpp \
     src/Loader.cpp \
     src/ProjectileController.cpp \
-    src/WorkQueue.cpp
+    src/WorkQueue.cpp \
+    src/PlayerController.cpp \
+    src/UnitController.cpp
 
 HEADERS += \
     include/common.h \
@@ -37,7 +38,8 @@ HEADERS += \
     include/NpcController.h \
     include/Loader.h \
     include/ProjectileController.h \
-    include/WorkQueue.h
+    include/WorkQueue.h \
+    include/PlayerController.h
 
 RESOURCES += \
     qtanks.qrc

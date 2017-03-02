@@ -3,8 +3,7 @@
 
 void ProjectileController::msgTick (ActiveItem *a)
 {
-    QQuickItem* target = a->getLinkedObject ();
-    QRectF location(target->x (), target->y (), target->width (), target->height ());
+    QRectF location(a->x (), a->y (), a->width (), a->height ());
     QRect region(location.x (), location.y (), location.width (), location.height ());
     Block* block = nullptr;
     QList<Block*> l;
@@ -66,7 +65,7 @@ void ProjectileController::msgTick (ActiveItem *a)
         return;
     }
 
-    target->setPosition (QPointF(location.x (), location.y ()));
+    a->setX (location.x ()); a->setY (location.y ());
 }
 
 void ProjectileController::destroyProjectile (ActiveItem* a)
@@ -76,9 +75,4 @@ void ProjectileController::destroyProjectile (ActiveItem* a)
 
     if (getScene ())
         getScene ()->removeProjectile (a);
-}
-
-void ProjectileController::msgDirectionChanged (ActiveItem* a)
-{
-    Q_UNUSED(a)
 }

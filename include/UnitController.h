@@ -10,18 +10,17 @@ class UnitController : public QObject {
     Q_OBJECT
 
 public:
-    explicit UnitController(QObject* parent = 0);
+    explicit UnitController(QObject* parent);
 
-    virtual void msgDirectionChanged (ActiveItem*);
-    virtual void msgTick (ActiveItem*);
-    virtual void msgFired (ActiveItem*);
+    virtual void msgDirectionChanged (ActiveItem* target);
+    virtual void msgTick (ActiveItem* target);
+    virtual void msgFired (ActiveItem* target);
 
 protected:
     virtual GameScene* getScene () const;
 
 private:
     GameScene* scene;
-    int blkcnt;
 };
 
 #endif // UNITCONTROLLER_H

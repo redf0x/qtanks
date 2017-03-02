@@ -5,13 +5,11 @@ Item {
 
     x: modelData.x
     y: modelData.y
-    z: 1
-    width: (battleArea.width / battleField.columns) / 2
-    height: (battleArea.height / battleField.rows) / 2
+    z: modelData.z
+    width: modelData.width
+    height: modelData.height
     focus: false
     objectName: "linked_" + modelData.objectId
-
-    Component.onCompleted: { modelData.linkObject(projectile); }
 
     Rectangle {
         Image {

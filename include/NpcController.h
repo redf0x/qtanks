@@ -1,14 +1,14 @@
 #ifndef NPCCONTROLLER_H
 #define NPCCONTROLLER_H
 
-#include "UnitController.h"
+#include "PlayerController.h"
 #include "ActiveItem.h"
 
-class NpcController : public UnitController {
+class NpcController : public PlayerController {
     Q_OBJECT
 
 public:
-    explicit NpcController(QObject* parent = 0) : UnitController(parent) { }
+    explicit NpcController(QObject* parent) : PlayerController(parent) { }
 
     virtual void msgTick (ActiveItem*);
 };

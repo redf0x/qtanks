@@ -1,7 +1,7 @@
 #include "ActiveItem.h"
 
 ActiveItem::ActiveItem(QObject* parent, int rotation, ActiveItem::ActiveItemType type, UnitController* u) :
-    Entity(parent), _type(type), _uc(u), _frozen(false), _distance(0), texOverriden(false), _fired(false),
+    Entity(parent), _type(type), _uc(u), _distance(0), _frozen(false), texOverriden(false), _fired(false),
     _spawned(true), _alive(true)
 {
     setRotation (rotation);
@@ -118,12 +118,9 @@ bool ActiveItem::getFrozen () const
     return _frozen;
 }
 
-void ActiveItem::setFrozen (bool f)
+void ActiveItem::setFrozen (bool frozen)
 {
-    if (f != _frozen) {
-        _frozen = f;
-        emit frozenChanged(f);
-    }
+    set_if_changed(frozen)
 }
 
 void ActiveItem::setFired (bool f)
@@ -143,22 +140,14 @@ bool ActiveItem::getFired () const
     return _fired;
 }
 
-void ActiveItem::setSpawned (bool s)
+void ActiveItem::setSpawned (bool spawned)
 {
-    if (_spawned == s)
-        return;
-
-    _spawned = s;
-    emit spawnedChanged(_spawned);
+    set_if_changed(spawned)
 }
 
-void ActiveItem::setAlive (bool a)
+void ActiveItem::setAlive (bool alive)
 {
-    if (_alive == a)
-        return;
-
-    _alive = a;
-    emit aliveChanged(_alive);
+    set_if_changed(alive)
 }
 
 bool ActiveItem::isSpawned () const

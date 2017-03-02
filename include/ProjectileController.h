@@ -9,9 +9,8 @@ class ProjectileController : public UnitController {
     Q_OBJECT
 
 public:
-    explicit ProjectileController(QObject* parent = 0) : UnitController(parent) { }
+    explicit ProjectileController(QObject* parent) : UnitController(parent) { }
 
-    virtual void msgDirectionChanged (ActiveItem*);
     virtual void msgTick (ActiveItem*);
 
 private:

@@ -2,14 +2,11 @@ import QtQuick 2.0
 
 Item {
     id: cell
-    x: modelData.x * width
-    y: modelData.y * height
-    z: modelData.zlevel
-    width: battleArea.width / battleField.columns
-    height: battleArea.height / battleField.rows
-    objectName: "linked_" + modelData.objectId
-
-    Component.onCompleted: modelData.linkObject(cell);
+    x: modelData.x
+    y: modelData.y
+    z: modelData.z
+    width: modelData.width
+    height: modelData.height
 
     Image {
         id: cellTexture
