@@ -53,17 +53,22 @@ void PlayerController::msgDirectionChanged (ActiveItem* a)
 
 void PlayerController::msgTick (ActiveItem* a)
 {
-    if (a->getFrozen ()) {
-        if (a->isSpawned ()) {
+    if (a->getFrozen ())
+        return;
+
+    if (!a->isAlive ()) {
+        Attribute& attr = a->getAttribute ("counter", "respawn");
+        int time_to_respawn = attr.getValue ().toInt ();
+
+        if (time_to_respawn == 0) {
             a->setArmor (1);
             a->setRotation (0);
             a->setDirection (ActiveItem::Direction::SOUTH);
             a->setDistance (0);
             a->setAlive (true);
-            a->setFrozen (false);
-        }
-
-        return;
+            qDebug() << a->getObjectId () << "respawned at (" << a->x () << "," << a->y () << ")";
+        } else
+            attr.setValue (QVariant::fromValue (--time_to_respawn));
     }
 
     if (getScene ()->getBlocksCount () != blkcnt) {

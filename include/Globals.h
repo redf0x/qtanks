@@ -5,6 +5,8 @@
 
 #define FIRE_AT_LEAST 500
 #define FIRE_AT_MOST 15
+#define RESPAWN_TIMEOUT 30
+#define CLEANUP_TIMEOUT 3
 
 class Globals : public QObject {
     Q_OBJECT

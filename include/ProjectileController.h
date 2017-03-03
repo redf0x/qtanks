@@ -15,6 +15,7 @@ public:
 
 private:
     void destroyProjectile (ActiveItem*);
+    void handleImpact (Entity* entity);
 };
 
 #endif // PROJECTILECONTROLLER_H

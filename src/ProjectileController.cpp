@@ -6,10 +6,10 @@ void ProjectileController::msgTick (ActiveItem *a)
     QRectF location(a->x (), a->y (), a->width (), a->height ());
     QRect region(location.x (), location.y (), location.width (), location.height ());
     Block* block = nullptr;
-    QList<Block*> l;
-    QList<Entity*> targets;
+    BlockList l;
+    ObjectList targets;
 
-    if (a->getFrozen ())
+    if (a->getFrozen () || !a->isAlive ())
         return;
 
     if ((block = getScene ()->scanDirection (region, a->getDirection ())))
@@ -18,25 +18,7 @@ void ProjectileController::msgTick (ActiveItem *a)
     targets = getScene ()->checkImmediateCollisions (a, l);
 
     if (!targets.empty ()) {
-        ActiveItem* x;
-
-        for (QList<Entity*>::iterator t = targets.begin (); t != targets.end (); t++) {
-            (*t)->setArmor ((*t)->getArmor () - 1);
-
-            if ((*t)->getArmor () <= 0) {
-                block = qobject_cast<Block*>((*t));
-
-                if (block != nullptr)
-                    getScene ()->removeBlock (block);
-                else {
-                    x = qobject_cast<ActiveItem*>((*t));
-
-                    if (x != nullptr)
-                        getScene ()->respawn (x);
-                }
-            }
-        }
-
+        for_all_objects(targets, handleImpact);
         destroyProjectile (a);
         return;
     }
@@ -70,9 +52,29 @@ void ProjectileController::msgTick (ActiveItem *a)
 
 void ProjectileController::destroyProjectile (ActiveItem* a)
 {
-    if (a->getFrozen ())
-        return;
+    a->setAlive (false);
+}
 
-    if (getScene ())
-        getScene ()->removeProjectile (a);
+void ProjectileController::handleImpact (Entity* entity)
+{
+    entity->setArmor (entity->getArmor () - 1);
+
+    if (entity->getArmor () <= 0) {
+        Block* block = qobject_cast<Block*>(entity);
+
+        if (block != nullptr)
+            getScene ()->removeBlock (block);
+        else {
+            ActiveItem* x = qobject_cast<ActiveItem*>(entity);
+
+            if (x != nullptr) {
+                if (!x->isAlive ())     /* can't simply shoot a zombie */
+                    return;
+                else {
+                    x->setAlive (false);
+                    getScene ()->respawn (x);
+                }
+            }
+        }
+    }
 }

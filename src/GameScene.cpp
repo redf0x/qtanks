@@ -91,6 +91,7 @@ void GameScene::spawnPlayerItem (QPoint pos, QString texOverride)
 {
     ActiveItem s, *p;
     QRect realLoc;
+    Attribute attr;
 
     realLoc = QRect(pos.x (), pos.y (), 2, 2);
     realLoc = mapRect (realLoc, MappingType::FROM_LOGICAL);
@@ -106,6 +107,9 @@ void GameScene::spawnPlayerItem (QPoint pos, QString texOverride)
         p->overrideTexture (true);
         p->setTextureSource (texOverride);
     }
+
+    attr = Attribute("counter", QVariant::fromValue (0), EXPIRY_NEVER, "respawn");
+    p->addAttribute (attr);
 
     _playableItems << p;
     _spawners.insert (p->getObjectId (), QPoint(realLoc.x (), realLoc.y ()));
@@ -134,7 +138,9 @@ void GameScene::spawnNpcItem (QPoint pos, QString texOverride)
         p->setTextureSource (texOverride);
     }
 
-    attr = Attribute("counter", QVariant::fromValue (initialValue), EXPIRY_NEVER,"fire");
+    attr = Attribute("counter", QVariant::fromValue (initialValue), EXPIRY_NEVER, "fire");
+    p->addAttribute (attr);
+    attr = Attribute("counter", QVariant::fromValue (0), EXPIRY_NEVER, "respawn");
     p->addAttribute (attr);
 
     _npcItems << p;
@@ -344,7 +350,7 @@ QList<ActiveItem*> GameScene::getIntersectionsList (ActiveItem* a, QList<ActiveI
 
             r2 = QRect((*i)->x (), (*i)->y (), (*i)->width (), (*i)->height ());
 
-            if (r1.intersects (r2))
+            if (r1.intersects (r2) && (*i)->isAlive ())
                 rlist << (*i);
         }
 
@@ -424,6 +430,7 @@ void GameScene::fireProjectile (ActiveItem * a)
     p->setWidth (_cell.width / 2); p->setHeight (_cell.height / 2);
     p->setFrozen (true);
     QObject::connect (&_timer, SIGNAL(timeout()), p, SLOT(tick()));
+    QObject::connect (p, SIGNAL(aliveChanged(bool)), this, SLOT(cleanup()));
     p->setUnitController (_projectileCtl);
     p->setDirection (a->getDirection ());
     p->setRotation (a->getRotation ());
@@ -433,18 +440,30 @@ void GameScene::fireProjectile (ActiveItem * a)
     a->setFired (false);
     p->setFrozen (false);
 
+
     emit projectilesChanged(getProjectiles ());
 }
 
 void GameScene::removeProjectile (ActiveItem *a)
 {
-    if (_projectiles.empty ())
-        return;
+    if (!a->isAlive ()) {
+        a->disconnect (&_timer, SIGNAL(timeout()), a, SLOT(tick()));
+        disconnect (a, SIGNAL(aliveChanged(bool)), this, SLOT(cleanup()));
+        _projectiles.removeOne (a);
+        a->deleteLater ();
+        emit projectilesChanged(getProjectiles ());
+    }
+}
 
-    a->disconnect ();
-    a->setUnitController (0);
-    _projectiles.removeOne (a);
-    emit projectilesChanged(getProjectiles ());
+void GameScene::cleanup ()
+{
+    QObject* x = sender ();
+    Entity* obj = qobject_cast<Entity*>(x);
+
+    if (obj->getObjectId ().startsWith ("projectile")) {
+        ActiveItem* projectile = qobject_cast<ActiveItem*>(obj);
+        removeProjectile (projectile);
+    }
 }
 
 void GameScene::removeBlock (Block *b)
@@ -466,44 +485,25 @@ int GameScene::getBlocksCount () const
     return _bmap.size ();
 }
 
-class Respawner : public QRunnable {
-public:
-    Respawner(ActiveItem* item) {
-        setAutoDelete(true);
-        this->item = item;
-        qDebug() << "schedule respawn for" << item->getObjectId ();
-    }
-
-    void run () {
-        qDebug() << item->getObjectId () << "waiting for respawn";
-        msleep (2000);
-        item->setSpawned (true);
-    }
-
-private:
-    ActiveItem* item;
-};
-
 void GameScene::respawn (ActiveItem* a)
 {
-    Respawner* resp;
     QPoint pt;
 
-    if (_enemyCounter - 1 >= 0)
-        _enemyCounter--;
-
-    emit enemyCounterChanged(_enemyCounter);
+    if (!a->isAlive ()) {
+        if (_enemyCounter - 1 >= 0)
+            _enemyCounter--;
+    } else
+        return;     /* can't respawn what ain't even dead */
 
     a->setFrozen (true);
-    a->setAlive (false);
-    a->setSpawned (false);
+    emit enemyCounterChanged(_enemyCounter);
 
     /* when enemy counter drops to 3 we start to remove spawners */
     if (_enemyCounter < 3 && !_npcItems.empty ()) {
         ActiveItem* v = nullptr;
 
         for (int i = 0; i < _npcItems.size (); i++)
-            if (!_npcItems [i]->isSpawned () && !_npcItems [i]->isAlive ()) {
+            if (/* _npcItems [i]->isSpawned () && */ !_npcItems [i]->isAlive ()) {
                 v = _npcItems [i];
                 break;
             }
@@ -515,12 +515,15 @@ void GameScene::respawn (ActiveItem* a)
         qDebug() << "entity" << v->getObjectId () << "eliminated, not respawning it anymore";
 
         delete v;
-    } else {    /* otherwise schedule respawn in 2 secs */
+    } else {    /* otherwise schedule respawn in ((RESPAWN_TIMEOUT * 10) / 1000) secs */
         pt = _spawners [a->getObjectId ()];
         a->setX (pt.x ());
         a->setY (pt.y ());
-        resp = new Respawner(a);
-        wq->run_task (resp);
+
+        Attribute& attr = a->getAttribute ("counter", "respawn");
+        attr.setValue (QVariant::fromValue (RESPAWN_TIMEOUT));
+        qDebug() << a->getObjectId () << "scheduled to respawn in " << RESPAWN_TIMEOUT << "ticks";
+        a->setFrozen (false);
     }
 
     /* Game over */
@@ -530,18 +533,7 @@ void GameScene::respawn (ActiveItem* a)
     }
 }
 
-WorkQueue* GameScene::getwq ()
-{
-    return wq;
-}
-
 void GameScene::finalize ()
 {
     _timer.stop ();
-
-    /* freeze all bullets to prevent them from crushing us with spurious ticks */
-    for (QList<ActiveItem*>::iterator p = _projectiles.begin (); p != _projectiles.end (); p++) {
-        (*p)->setFrozen (true);
-        removeProjectile ((*p));
-    }
 }

@@ -109,6 +109,16 @@ int Entity::getArmor () const
     return _armor;
 }
 
+void Entity::setSpawned (bool spawned)
+{
+    set_if_changed(spawned)
+}
+
+bool Entity::isSpawned () const
+{
+    return _spawned;
+}
+
 void Entity::addAttribute (Attribute attr)
 {
     QString attrFCN(attr.getFamily () + "." + attr.getType ());

@@ -2,7 +2,7 @@
 
 ActiveItem::ActiveItem(QObject* parent, int rotation, ActiveItem::ActiveItemType type, UnitController* u) :
     Entity(parent), _type(type), _uc(u), _distance(0), _frozen(false), texOverriden(false), _fired(false),
-    _spawned(true), _alive(true)
+    _alive(true)
 {
     setRotation (rotation);
     setDirection (Direction::SOUTH);
@@ -140,19 +140,9 @@ bool ActiveItem::getFired () const
     return _fired;
 }
 
-void ActiveItem::setSpawned (bool spawned)
-{
-    set_if_changed(spawned)
-}
-
 void ActiveItem::setAlive (bool alive)
 {
     set_if_changed(alive)
-}
-
-bool ActiveItem::isSpawned () const
-{
-    return _spawned;
 }
 
 bool ActiveItem::isAlive () const

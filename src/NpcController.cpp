@@ -7,7 +7,7 @@ void NpcController::msgTick (ActiveItem* a)
 
     PlayerController::msgTick (a);
 
-    if (a->getFrozen ())
+    if (a->getFrozen () || !a->isAlive ())
         return;
 
     c = getScene()->checkImmediateCollisions (a);

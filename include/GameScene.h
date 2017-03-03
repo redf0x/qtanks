@@ -2,6 +2,7 @@
 #define GAMESCENE_H
 
 #include "common.h"
+#include "Entity.h"
 #include "Block.h"
 #include "ActiveItem.h"
 #include "UnitController.h"
@@ -10,7 +11,7 @@
 #include "ProjectileController.h"
 #include "KeyAssignments.h"
 #include "RTree.h"
-#include "WorkQueue.h"
+#include "Globals.h"
 
 typedef QList<ActiveItem*> ActorList;
 typedef QList<Block*> BlockList;
@@ -80,7 +81,6 @@ public:
         _playerCtl = new PlayerController(this);
         _botCtl = new NpcController(this);
         _projectileCtl = new ProjectileController(this);
-        wq = new WorkQueue(this);
         ctx->setContextProperty ("battleField", this);
         ctx->setContextProperty ("controller", _keyConfig);
     }
@@ -115,7 +115,6 @@ public:
     void removeProjectile (ActiveItem*);
     void removeBlock (Block*);
     void respawn (ActiveItem* a);
-    WorkQueue* getwq ();
     void finalize ();
     enum MappingType { FROM_LOGICAL, FROM_PHYSICAL };
     QRect mapRect (QRect&, MappingType);
@@ -134,6 +133,7 @@ signals:
 public slots:
     void heightChanged (int newheight);
     void widthChanged (int newwidth);
+    void cleanup ();
 
 private:
     QList<ActiveItem*> getIntersectionsList (ActiveItem*, QList<ActiveItem*> &);
@@ -159,7 +159,6 @@ private:
     bool _frozen;
     int _enemyCounter, _stage, _playerCounter;
     QMap<QString, QPoint> _spawners;
-    WorkQueue* wq;
 };
 
 #endif // GAMESCENE_H
