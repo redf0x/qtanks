@@ -6,6 +6,30 @@
 #define set_if_changed(variable)    \
     if (_ ## variable != variable) { _ ## variable = variable; emit variable ## Changed(_ ## variable); }
 
+#define ATTRIBUTE_GENERIC "generic"
+#define ATTRIBUTE_UNKNOWN "unknown"
+#define EXPIRY_NEVER    std::numeric_limits<long long>::max()
+
+class Attribute {
+public:
+    Attribute() : family(ATTRIBUTE_UNKNOWN), type(ATTRIBUTE_GENERIC), value(QVariant::fromValue(0)), expiry(0) { }
+    Attribute(QString f, QVariant v, long long exp = EXPIRY_NEVER, QString t = ATTRIBUTE_GENERIC) : family(f), type(t),
+        value(v), expiry(exp) { }
+
+    QVariant getValue () const { return value; }
+    void setValue (QVariant v) { value = v; }
+    void tickOff () { if (expiry - 1) expiry--; }
+    bool expired () { return !expiry; }
+    void extend (long long nexp) { expiry += nexp; }
+    QString getFamily () const { return family; }
+    QString getType () const { return type; }
+
+protected:
+    QString family, type;
+    QVariant value;
+    long long expiry;
+};
+
 class Entity : public QObject {
     Q_OBJECT
 
@@ -23,6 +47,7 @@ public:
 
     explicit Entity(QObject* parent = 0) : QObject(parent),  _solid(true), _x(0), _y(0), _width(1), _height(1),
         _rotation(0), _z(1) { }
+    virtual ~Entity() { }
 
     virtual QString getObjectId () const;
     virtual int x () const;
@@ -46,6 +71,10 @@ public:
     virtual void setArmor (int);
     virtual Entity* create (QObject* parent, char sign, QPoint pos);
 
+    virtual void addAttribute (Attribute attr);
+    virtual Attribute& getAttribute (QString family, QString type = ATTRIBUTE_GENERIC);
+    virtual void removeAttribute (QString family, QString type = ATTRIBUTE_GENERIC);
+
 protected:
     virtual Entity* createObject (QObject* parent, char sign, QPoint pos);
 
@@ -65,6 +94,7 @@ private:
     int _x, _y, _width, _height;
     int _rotation;
     int _armor;
+    QMap<QString, Attribute> attributeSlots;
 
 protected:
     int _z;

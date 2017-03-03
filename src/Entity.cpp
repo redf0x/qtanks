@@ -108,3 +108,23 @@ int Entity::getArmor () const
 {
     return _armor;
 }
+
+void Entity::addAttribute (Attribute attr)
+{
+    QString attrFCN(attr.getFamily () + "." + attr.getType ());
+
+    if (attributeSlots.contains (attrFCN))
+        return;
+    else
+        attributeSlots.insert (attrFCN, attr);
+}
+
+Attribute& Entity::getAttribute (QString family, QString type)
+{
+    return attributeSlots [QString(family + "." + type)];
+}
+
+void Entity::removeAttribute (QString family, QString type)
+{
+    attributeSlots.remove (QString(family + "." + type));
+}

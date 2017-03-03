@@ -52,4 +52,18 @@ void NpcController::msgTick (ActiveItem* a)
         a->setX (rect.x ()); a->setY (rect.y ());
         a->setDistance (a->getDistance () - Globals::npcBaseSpeed);
     }
+
+    int time_to_fire;
+    Attribute& attr = a->getAttribute ("counter", "fire");
+
+    time_to_fire = attr.getValue ().toInt ();
+
+    if (time_to_fire - 1)
+        attr.setValue (QVariant::fromValue (--time_to_fire ));
+    else {
+        getScene ()->fireProjectile (a);
+        time_to_fire = FIRE_AT_MOST + (int) ((FIRE_AT_LEAST - FIRE_AT_MOST + 1) * (rand () / (RAND_MAX + 1.0)));
+        attr.setValue (QVariant::fromValue (time_to_fire));
+        qDebug() << a->getObjectId () << "reloaded and ready to fire in" << time_to_fire << "ticks";
+    }
 }

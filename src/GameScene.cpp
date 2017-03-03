@@ -3,6 +3,7 @@
 #include "GameScene.h"
 #include "MapBuilder.h"
 #include "Utility.h"
+#include "Globals.h"
 
 GameScene::~GameScene()
 {
@@ -115,6 +116,8 @@ void GameScene::spawnNpcItem (QPoint pos, QString texOverride)
 {
     ActiveItem s, *p;
     QRect realLoc;
+    Attribute attr;
+    int initialValue = FIRE_AT_MOST + (int) ((FIRE_AT_LEAST - FIRE_AT_MOST + 1) * (rand () / (RAND_MAX + 1.0)));
 
     realLoc = QRect(pos.x (), pos.y (), 2, 2);
     realLoc = mapRect (realLoc, MappingType::FROM_LOGICAL);
@@ -130,6 +133,9 @@ void GameScene::spawnNpcItem (QPoint pos, QString texOverride)
         p->overrideTexture (true);
         p->setTextureSource (texOverride);
     }
+
+    attr = Attribute("counter", QVariant::fromValue (initialValue), EXPIRY_NEVER,"fire");
+    p->addAttribute (attr);
 
     _npcItems << p;
     _spawners.insert (p->getObjectId (), QPoint(realLoc.x (), realLoc.y ()));

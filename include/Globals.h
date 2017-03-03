@@ -3,6 +3,9 @@
 
 #include "common.h"
 
+#define FIRE_AT_LEAST 500
+#define FIRE_AT_MOST 15
+
 class Globals : public QObject {
     Q_OBJECT
 
@@ -17,9 +20,6 @@ public:
 
     enum UserAction { EXIT, START, SETTINGS, HISCORE, CANCEL_GAME, GAMEOVER };
     Q_ENUMS(UserAction)
-
-    Q_PROPERTY(int fieldCellRows MEMBER fieldCellRows CONSTANT)
-    Q_PROPERTY(int fieldCellColumns MEMBER fieldCellColumns CONSTANT)
 };
 
 #endif // GLOBALS_H
