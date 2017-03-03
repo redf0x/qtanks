@@ -26,7 +26,7 @@ Item {
 //        border.color: "blue"
 //        border.width: 2
         color: "transparent"
-        visible: modelData.spawned
+        visible: modelData.alive
     }
 
     Timer {

@@ -23,7 +23,7 @@ Item {
         /* border.color: "blue" */
         /* border.width: 2 */
         color: "transparent"
-        visible: modelData.spawned
+        visible: modelData.alive
     }
 
     Timer {
@@ -41,11 +41,23 @@ Item {
         }
     }
 
+    Explosion {
+        id: explosion
+    }
+
     Connections {
         target: modelData
         onAliveChanged: {
             if (alive) {
+                aiTexture.visible = true;
                 timer.start ();
+            } else {
+                explosion.x = x; explosion.y = y;
+                explosion.width = width;
+                explosion.height = height;
+                console.log(modelData.objectId + " exploded @ " + x + "," + y);
+                explosion.trigger();
+                aiTexture.visible = false;
             }
         }
     }
