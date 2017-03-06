@@ -9,6 +9,7 @@ Item {
     z: modelData.z
     width: modelData.width
     height: modelData.height
+    objectName: modelData.objectId
     focus: false
 
     Rectangle {
@@ -52,11 +53,11 @@ Item {
                 aiTexture.visible = true;
                 timer.start ();
             } else {
-                explosion.x = x; explosion.y = y;
-                explosion.width = width;
-                explosion.height = height;
+//                explosion.x = x; explosion.y = y;
+//                explosion.width = width;
+//                explosion.height = height;
                 console.log(modelData.objectId + " exploded @ " + x + "," + y);
-                explosion.trigger();
+                explosion.trigger(x, y);
                 aiTexture.visible = false;
             }
         }
