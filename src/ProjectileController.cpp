@@ -19,6 +19,7 @@ void ProjectileController::msgTick (ActiveItem *a)
 
     if (!targets.empty ()) {
         for_all_objects(targets, handleImpact);
+        a->setUnitController (0);   /* disconnect from controller */
         destroyProjectile (a);
         return;
     }

@@ -1,11 +1,10 @@
 #include "PlayerController.h"
 #include "GameScene.h"
-#include "Utility.h"
 #include "Globals.h"
 
 PlayerController::PlayerController(QObject* parent) : UnitController(parent)
 {
-        blkcnt = getScene ()->getBlocksCount ();
+    blkcnt = getScene ()->getBlocksCount ();
 }
 
 void PlayerController::msgDirectionChanged (ActiveItem* a)

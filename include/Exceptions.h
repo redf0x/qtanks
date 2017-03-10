@@ -24,6 +24,11 @@ private:
     QObject* _offender;
 };
 
+class NotImplemented : public Exception {
+public:
+    NotImplemented(QString details) : Exception("requested functionality not implemented: " + details) { }
+};
+
 class InvalidLevelData : public Exception {
 public:
     enum Reason { JUNK, MISALIGNED_DATA, UNEXPECTED_EOF };

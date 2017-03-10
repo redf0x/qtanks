@@ -2,7 +2,7 @@
 
 #include "GameScene.h"
 #include "MapBuilder.h"
-#include "Utility.h"
+#include "Exceptions.h"
 #include "Globals.h"
 
 GameScene::~GameScene()
@@ -31,10 +31,9 @@ QRect GameScene::mapRect (QRect& source, MappingType mapping)
             break;
 
         case FROM_PHYSICAL:
-            result.setX (result.x () / _cell.width);
-            result.setY (result.y () / _cell.height);
-            result.setWidth (result.width () / _cell.width);
-            result.setHeight (result.height () / _cell.height);
+            /* FIXME: implement Physical → Logical conversion with alignment on the boundary
+             * of the nearest cell */
+            throw new NotImplemented("GameScene::mapRect(FROM_PHYSICAL)");
             break;
     }
 
@@ -87,7 +86,7 @@ QQmlListProperty<ActiveItem> GameScene::getProjectiles ()
     return QQmlListProperty<ActiveItem>(this, _projectiles);
 }
 
-void GameScene::spawnPlayerItem (QPoint pos, QString texOverride)
+ActiveItem* GameScene::spawnItem (QPoint pos, ActiveItem::ActiveItemType type, ActorList& list, QString id, UnitController* ctl, QString texOverride, AttrList* attrs)
 {
     ActiveItem s, *p;
     QRect realLoc;
@@ -96,11 +95,11 @@ void GameScene::spawnPlayerItem (QPoint pos, QString texOverride)
     realLoc = QRect(pos.x (), pos.y (), 2, 2);
     realLoc = mapRect (realLoc, MappingType::FROM_LOGICAL);
 
-    p = dynamic_cast<ActiveItem*>(s.create (this, ActiveItem::ActiveItemType::PLAYER, QPoint(realLoc.x (), realLoc.y ())));
+    p = dynamic_cast<ActiveItem*>(s.create (this, type, QPoint(realLoc.x (), realLoc.y ())));
     p->setWidth (realLoc.width ()); p->setHeight (realLoc.height ());
-    p->setObjectId(QString("player"));
+    p->setObjectId (id);
     p->setObjectName (p->getObjectId ());
-    p->setUnitController (_playerCtl);
+    p->setUnitController (ctl);
     QObject::connect (&_timer, SIGNAL(timeout()), p, SLOT(tick()));
 
     if (!texOverride.isEmpty ()) {
@@ -111,40 +110,36 @@ void GameScene::spawnPlayerItem (QPoint pos, QString texOverride)
     attr = Attribute("counter", QVariant::fromValue (0), EXPIRY_NEVER, "respawn");
     p->addAttribute (attr);
 
-    _playableItems << p;
+    if (attrs) {
+        if (!attrs->empty ())
+            for (AttrList::iterator i = attrs->begin (); i != attrs->end (); i++)
+                p->addAttribute ((*i));
+    }
+
+    list << p;
     _spawners.insert (p->getObjectId (), QPoint(realLoc.x (), realLoc.y ()));
+
+    return p;
+}
+
+void GameScene::spawnPlayerItem (QPoint pos, QString texOverride)
+{
+    ActiveItem* p = spawnItem (pos, ActiveItem::ActiveItemType::PLAYER, _playableItems,
+                               QString("player"), _playerCtl, texOverride, nullptr);
     emit playableItemsChanged(getPlayableItems ());
 }
 
 void GameScene::spawnNpcItem (QPoint pos, QString texOverride)
 {
-    ActiveItem s, *p;
-    QRect realLoc;
+    ActiveItem* p = spawnItem (pos, ActiveItem::ActiveItemType::NPC, _npcItems,
+                               QString("npc@%1%2").arg (pos.x ()).arg (pos.y ()),
+                               _botCtl, texOverride, nullptr);
     Attribute attr;
     int initialValue = FIRE_AT_MOST + (int) ((FIRE_AT_LEAST - FIRE_AT_MOST + 1) * (rand () / (RAND_MAX + 1.0)));
 
-    realLoc = QRect(pos.x (), pos.y (), 2, 2);
-    realLoc = mapRect (realLoc, MappingType::FROM_LOGICAL);
-
-    p = dynamic_cast<ActiveItem*>(s.create (this, ActiveItem::ActiveItemType::NPC, QPoint(realLoc.x (), realLoc.y ())));
-    p->setWidth (realLoc.width ()); p->setHeight (realLoc.height ());
-    p->setObjectId(QString("npc@%1%2").arg (pos.x ()).arg (pos.y ()));
-    p->setObjectName (p->getObjectId ());
-    QObject::connect (&_timer, SIGNAL(timeout()), p, SLOT(tick()));
-    p->setUnitController (_botCtl);
-
-    if (!texOverride.isEmpty ()) {
-        p->overrideTexture (true);
-        p->setTextureSource (texOverride);
-    }
-
     attr = Attribute("counter", QVariant::fromValue (initialValue), EXPIRY_NEVER, "fire");
     p->addAttribute (attr);
-    attr = Attribute("counter", QVariant::fromValue (0), EXPIRY_NEVER, "respawn");
-    p->addAttribute (attr);
 
-    _npcItems << p;
-    _spawners.insert (p->getObjectId (), QPoint(realLoc.x (), realLoc.y ()));
     emit npcItemsChanged(getNpcItems ());
 }
 
@@ -152,17 +147,17 @@ void GameScene::reset ()
 {
     _timer.stop ();
 
-    QList<Block*> tmp0(_bmap);
+    BlockList tmp0(_bmap);
 
     _bmap.clear ();
     qDeleteAll (tmp0);
 
-    QList<ActiveItem*> tmp1(_playableItems);
+    ActorList tmp1(_playableItems);
 
     _playableItems.clear ();
     qDeleteAll (tmp1);
 
-    QList<ActiveItem*> tmp2(_projectiles);
+   ActorList tmp2(_projectiles);
 
     _projectiles.clear ();
     qDeleteAll (tmp2);
@@ -284,17 +279,17 @@ bool GameScene::getFrozen () const
     return _frozen;
 }
 
-void GameScene::freeze (QList<ActiveItem*>& l)
+void GameScene::freeze (ActorList& l)
 {
     setFrozenState (l, true);
 }
 
-void GameScene::thaw (QList<ActiveItem*>& l)
+void GameScene::thaw (ActorList& l)
 {
     setFrozenState (l, false);
 }
 
-void GameScene::setFrozenState (QList<ActiveItem*>& l, bool s)
+void GameScene::setFrozenState (ActorList& l, bool s)
 {
     QList<ActiveItem*>::iterator i;
 
@@ -323,9 +318,9 @@ void GameScene::setFrozen (bool p)
     }
 }
 
-QList<ActiveItem*> GameScene::getIntersectionsList (ActiveItem* a, QList<ActiveItem*>& list)
+QList<ActiveItem*> GameScene::getIntersectionsList (ActiveItem* a, ActorList& list)
 {
-    QList<ActiveItem*> rlist;
+    ActorList rlist;
     QRect r1(a->x (), a->y (), a->width (), a->height ()), r2;
 
     switch (a->getDirection ()) {
@@ -345,7 +340,7 @@ QList<ActiveItem*> GameScene::getIntersectionsList (ActiveItem* a, QList<ActiveI
             r1.translate (-a->width () / 2, 0);
     }
 
-    for (QList<ActiveItem*>::iterator i = list.begin (); i != list.end (); i++)
+    for (ActorList::iterator i = list.begin (); i != list.end (); i++)
         if (*i != a) {
 
             r2 = QRect((*i)->x (), (*i)->y (), (*i)->width (), (*i)->height ());
@@ -357,9 +352,9 @@ QList<ActiveItem*> GameScene::getIntersectionsList (ActiveItem* a, QList<ActiveI
     return rlist;
 }
 
-QList<ActiveItem*> GameScene::checkImmediateCollisions (ActiveItem* a)
+ActorList GameScene::checkImmediateCollisions (ActiveItem* a)
 {
-    QList<ActiveItem*> collisions;
+    ActorList collisions;
 
     collisions += getIntersectionsList (a, _playableItems);
     collisions += getIntersectionsList (a, _npcItems);
@@ -367,15 +362,15 @@ QList<ActiveItem*> GameScene::checkImmediateCollisions (ActiveItem* a)
     return collisions;
 }
 
-QList<Entity*> GameScene::checkImmediateCollisions (ActiveItem* a, QList<Block*>& list)
+ObjectList GameScene::checkImmediateCollisions(ActiveItem* a, BlockList& list)
 {
-    QList<ActiveItem*> c;
-    QList<Entity*> collisions;
+    ActorList c;
+    ObjectList collisions;
 
     c = checkImmediateCollisions (a);
 
     if (!list.empty ())
-        for (QList<Block*>::iterator i = list.begin (); i != list.end (); i++) {
+        for (BlockList::iterator i = list.begin (); i != list.end (); i++) {
             QRect r1(a->x (), a->y (), a->width (), a->height ()),
                     r2((*i)->x (), (*i)->y (), (*i)->width (), (*i)->height ());
 
@@ -384,7 +379,7 @@ QList<Entity*> GameScene::checkImmediateCollisions (ActiveItem* a, QList<Block*>
         }
 
     if (!c.empty ())
-        for (QList<ActiveItem*>::iterator i = c.begin (); i != c.end (); i++)
+        for (ActorList::iterator i = c.begin (); i != c.end (); i++)
             collisions << dynamic_cast<Entity*>(*i);
 
     return collisions;
@@ -440,7 +435,6 @@ void GameScene::fireProjectile (ActiveItem * a)
     a->setFired (false);
     p->setFrozen (false);
 
-
     emit projectilesChanged(getProjectiles ());
 }
 
@@ -489,6 +483,13 @@ void GameScene::respawn (ActiveItem* a)
 {
     QPoint pt;
 
+    if (checkLoseCondition (a)) {   /* killed item was the base, whoever did this, just ended the game */
+        finalize ();
+        emit loseCondition();
+
+        return;
+    }
+
     if (!a->isAlive ()) {
         if (_enemyCounter - 1 >= 0)
             _enemyCounter--;
@@ -536,4 +537,21 @@ void GameScene::respawn (ActiveItem* a)
 void GameScene::finalize ()
 {
     _timer.stop ();
+    QThread::msleep (115);
+}
+
+void GameScene::spawnBase (QPoint pos)
+{
+    spawnItem (pos, ActiveItem::ActiveItemType::BASE, _npcItems,
+               QString("base"), nullptr, QString(""), nullptr);
+
+    emit npcItemsChanged(getNpcItems ());
+}
+
+bool GameScene::checkLoseCondition (ActiveItem* a)
+{
+    if (a->getObjectId () == QString("base"))
+        return true;
+
+    return false;
 }

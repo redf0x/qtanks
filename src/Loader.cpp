@@ -1,5 +1,4 @@
 #include "Loader.h"
-#include "Utility.h"
 
 Loader::Loader(QObject* parent) : QObject(parent)
 {
@@ -33,15 +32,22 @@ void Loader::gameScreen ()
     game->spawnNpcItem (QPoint(0, 0), "qrc:/image/ui/res/tank_fast.png");
     game->spawnNpcItem (QPoint(13, 0));
     game->spawnNpcItem (QPoint(24, 0), "qrc:/image/ui/res/tank_armored.png");
+    game->spawnBase (QPoint(12, 24));
 
     game->buildObjectsRTree ();
     QObject::connect(game, SIGNAL(winCondition(int)), this, SLOT(userWin(int)));
+    QObject::connect(game, SIGNAL(loseCondition()), this, SLOT(userLost()));
     game->start ();
 }
 
 void Loader::userWin (int stage)
 {
     Q_UNUSED(stage)
+    userAction (Globals::GAMEOVER);
+}
+
+void Loader::userLost ()
+{
     userAction (Globals::GAMEOVER);
 }
 

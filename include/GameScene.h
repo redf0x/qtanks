@@ -70,7 +70,6 @@ class GameScene : public QObject {
 
 public:
     typedef RTree<Entity*, int, 2, float, 512> ObjectRTree;
-    typedef QList<ActiveItem*> ObjectList;
 
     explicit GameScene(QQmlApplicationEngine* engine, QObject* parent = 0) : QObject(parent), _frozen(true),
         _enemyCounter(Globals::enemyCount), _stage(1), _playerCounter(1) {
@@ -98,13 +97,15 @@ public:
 
     void initialize (QString level);
     void reset ();
+    ActiveItem* spawnItem (QPoint, ActiveItem::ActiveItemType, ActorList&, QString, UnitController*, QString, AttrList*);
     void spawnPlayerItem (QPoint, QString = "");
     void spawnNpcItem (QPoint, QString = "");
+    void spawnBase (QPoint);
     void fireProjectile (ActiveItem*);
     void buildObjectsRTree ();
     Block* scanDirection (QRect&, ActiveItem::Direction);
-    QList<ActiveItem*> checkImmediateCollisions (ActiveItem*);
-    QList<Entity*> checkImmediateCollisions (ActiveItem*, QList<Block*>&);
+    ActorList checkImmediateCollisions(ActiveItem*);
+    ObjectList checkImmediateCollisions (ActiveItem*, BlockList&);
 
     KeyAssignments* getControllerConfig () const;
     int getBattleFieldWidth () const;
@@ -129,6 +130,7 @@ signals:
     void stageChanged (int);
     void playerCounterChanged (int);
     void winCondition (int);
+    void loseCondition (void);
 
 public slots:
     void heightChanged (int newheight);
@@ -136,11 +138,12 @@ public slots:
     void cleanup ();
 
 private:
-    QList<ActiveItem*> getIntersectionsList (ActiveItem*, QList<ActiveItem*> &);
-    void freeze (QList<ActiveItem*> &);
-    void thaw (QList<ActiveItem*>& l);
-    void setFrozenState (QList<ActiveItem*>& l, bool s);
+    QList<ActiveItem*> getIntersectionsList (ActiveItem*, ActorList &);
+    void freeze (ActorList&);
+    void thaw (ActorList&);
+    void setFrozenState (ActorList&, bool);
     void fixupObject (Block*);
+    bool checkLoseCondition (ActiveItem*);
 
     BlockList _bmap;
     ActorList _playableItems;

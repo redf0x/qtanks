@@ -30,6 +30,8 @@ protected:
     long long expiry;
 };
 
+typedef QList<Attribute> AttrList;
+
 class Entity : public QObject {
     Q_OBJECT
 

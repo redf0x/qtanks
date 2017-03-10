@@ -24,6 +24,7 @@ signals:
 public slots:
     void userAction (int c);
     void userWin (int stage);
+    void userLost ();
 
 private:
     void terminateGame ();

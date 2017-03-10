@@ -53,9 +53,6 @@ Item {
                 aiTexture.visible = true;
                 timer.start ();
             } else {
-//                explosion.x = x; explosion.y = y;
-//                explosion.width = width;
-//                explosion.height = height;
                 console.log(modelData.objectId + " exploded @ " + x + "," + y);
                 explosion.trigger(x, y);
                 aiTexture.visible = false;
