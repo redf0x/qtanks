@@ -33,7 +33,7 @@ QRect GameScene::mapRect (QRect& source, MappingType mapping)
         case FROM_PHYSICAL:
             /* FIXME: implement Physical → Logical conversion with alignment on the boundary
              * of the nearest cell */
-            throw new NotImplemented("GameScene::mapRect(FROM_PHYSICAL)");
+            throw NotImplemented("GameScene::mapRect(FROM_PHYSICAL)");
             break;
     }
 
