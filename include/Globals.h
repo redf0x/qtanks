@@ -10,6 +10,13 @@
 
 class Globals : public QObject {
     Q_OBJECT
+    Q_PROPERTY(int defaultEntityWidth MEMBER defaultEntityWidth CONSTANT)
+    Q_PROPERTY(int defaultEntityHeight MEMBER defaultEntityHeight CONSTANT)
+    Q_PROPERTY(int enemyCount MEMBER enemyCount CONSTANT)
+    Q_PROPERTY(int npcBaseSpeed MEMBER npcBaseSpeed CONSTANT)
+    Q_PROPERTY(int projectileSpeed MEMBER projectileSpeed CONSTANT)
+    Q_PROPERTY(int fieldCellRows MEMBER fieldCellRows CONSTANT)
+    Q_PROPERTY(int fieldCellColumns MEMBER fieldCellColumns CONSTANT)
 
 public:
     static const int defaultEntityWidth = 32;
@@ -22,6 +29,18 @@ public:
 
     enum UserAction { EXIT, START, SETTINGS, HISCORE, CANCEL_GAME, GAMEOVER };
     Q_ENUMS(UserAction)
+
+    explicit Globals(QObject* parent = 0) : QObject(parent) { }
+    ~Globals() { }
 };
+
+inline QObject* globals_provider (QQmlEngine* engine, QJSEngine* scriptEngine)
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+
+    Globals* g = new Globals();
+    return g;
+}
 
 #endif // GLOBALS_H

@@ -124,7 +124,7 @@ ActiveItem* GameScene::spawnItem (QPoint pos, ActiveItem::ActiveItemType type, A
 
 void GameScene::spawnPlayerItem (QPoint pos, QString texOverride)
 {
-    ActiveItem* p = spawnItem (pos, ActiveItem::ActiveItemType::PLAYER, _playableItems,
+    spawnItem (pos, ActiveItem::ActiveItemType::PLAYER, _playableItems,
                                QString("player"), _playerCtl, texOverride, nullptr);
     emit playableItemsChanged(getPlayableItems ());
 }

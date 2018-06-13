@@ -28,7 +28,7 @@ int main (int argc, char** argv)
     QQmlApplicationEngine engine;
     Loader* loader = setup_main_window (&engine);
 
-    qmlRegisterUncreatableType<Globals>("Tanks.Globals", 0, 1, "Globals", "Globals type cannot be instantiated");
+    qmlRegisterSingletonType<Globals>("Tanks.Globals", 0, 1, "Globals", globals_provider);
     qmlRegisterType<Entity>();
     qmlRegisterType<Block>();
     qmlRegisterType<ActiveItem>("Tanks.ActiveItem", 0, 1, "ActiveItem");
