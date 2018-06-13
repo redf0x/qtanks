@@ -34,13 +34,4 @@ public:
     ~Globals() { }
 };
 
-inline QObject* globals_provider (QQmlEngine* engine, QJSEngine* scriptEngine)
-{
-    Q_UNUSED(engine)
-    Q_UNUSED(scriptEngine)
-
-    Globals* g = new Globals();
-    return g;
-}
-
 #endif // GLOBALS_H

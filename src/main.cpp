@@ -22,6 +22,15 @@ Loader* setup_main_window (QQmlApplicationEngine* e)
     return l;
 }
 
+QObject* globals_provider (QQmlEngine* engine, QJSEngine* scriptEngine)
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+
+    Globals* g = new Globals();
+    return g;
+}
+
 int main (int argc, char** argv)
 {
     QGuiApplication app(argc, argv);
