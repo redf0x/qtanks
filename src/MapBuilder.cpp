@@ -12,12 +12,12 @@ QList<Block *> MapBuilder::spawnObjects(QObject *parent)
 
     QTextStream stream(&data);
 
-    for (int y = 0; y < _scene->getRows () + 1; y++)
-        for (int x = 0; x < _scene->getColumns () + 1; x++) {
+    for (int y = 0; y < Globals::fieldCellRows + 1; y++)
+        for (int x = 0; x < Globals::fieldCellColumns + 1; x++) {
             Block b, *entity;
 
             if (stream.atEnd ()) {
-                if (y < _scene->getRows ())
+                if (y < Globals::fieldCellRows)
                     throw InvalidLevelData(_file, InvalidLevelData::UNEXPECTED_EOF);
                 else
                     break;

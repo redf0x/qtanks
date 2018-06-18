@@ -44,7 +44,7 @@ void GameScene::widthChanged (int newwidth)
 {
     _fieldSize.setX (newwidth);
     qDebug() << "reported field width" << _fieldSize.x ();
-    _cell.width = _fieldSize.x () / columns;
+    _cell.width = _fieldSize.x () / Globals::fieldCellColumns;
     qDebug() << "logical cell width" << _cell.width;
 }
 
@@ -52,18 +52,8 @@ void GameScene::heightChanged (int newheight)
 {
     _fieldSize.setY (newheight);
     qDebug() << "reported field height" << _fieldSize.y ();
-    _cell.height = _fieldSize.y () / rows;
+    _cell.height = _fieldSize.y () / Globals::fieldCellRows;
     qDebug() << "logical cell height" << _cell.height;
-}
-
-int GameScene::getColumns () const
-{
-    return columns;
-}
-
-int GameScene::getRows () const
-{
-    return rows;
 }
 
 QQmlListProperty<Block> GameScene::getBmap ()
@@ -135,7 +125,7 @@ void GameScene::spawnNpcItem (QPoint pos, QString texOverride)
                                QString("npc@%1%2").arg (pos.x ()).arg (pos.y ()),
                                _botCtl, texOverride, nullptr);
     Attribute attr;
-    int initialValue = FIRE_AT_MOST + (int) ((FIRE_AT_LEAST - FIRE_AT_MOST + 1) * (rand () / (RAND_MAX + 1.0)));
+    int initialValue = FIRE_AT_MOST + (int)((FIRE_AT_LEAST - FIRE_AT_MOST + 1) * (rand () / (RAND_MAX + 1.0)));
 
     attr = Attribute("counter", QVariant::fromValue (initialValue), EXPIRY_NEVER, "fire");
     p->addAttribute (attr);
@@ -193,15 +183,13 @@ KeyAssignments* GameScene::getControllerConfig () const
 
 void GameScene::buildObjectsRTree ()
 {
-    QList<Block*>::iterator b;
-
     _tree = new ObjectRTree();
 
     if (!_bmap.isEmpty ()) {
-        for (b = _bmap.begin (); b != _bmap.end (); b++) {
-            ObjectRTreeBox item((*b)->x (), (*b)->y (), (*b)->width (), (*b)->height ());
+        for (auto& b : _bmap) {
+            ObjectRTreeBox item(b->x (), b->y (), b->width (), b->height ());
 
-            _tree->Insert (item.min, item.max, *b);
+            _tree->Insert (item.min, item.max, b);
         }
     }
 }

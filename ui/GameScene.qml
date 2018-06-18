@@ -11,8 +11,8 @@ Rectangle {
         id: battleArea
         x: 32
         y: 32
-        height: /* Globals.fieldCellRows */ 26 * 22
-        width: /* Globals.fieldCellColumns */ 26 * 22
+        height: Globals.fieldCellRows * Globals.defaultEntityHeight
+        width: Globals.fieldCellColumns * Globals.defaultEntityWidth
         color: "black"
 
         Repeater {
@@ -38,7 +38,8 @@ Rectangle {
         onHeightChanged: { battleField.heightChanged(height); }
         onWidthChanged: { battleField.widthChanged(width); }
         Component.onCompleted: { heightChanged(height); widthChanged(width);
-        console.log("field cols/rows " + Globals.fieldCellRows); }
+        console.log("field cols/rows " + Globals.fieldCellColumns + ", "
+                    + Globals.fieldCellRows); }
     }
 
     HUD {

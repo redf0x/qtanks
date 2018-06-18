@@ -19,8 +19,8 @@ class Globals : public QObject {
     Q_PROPERTY(int fieldCellColumns MEMBER fieldCellColumns CONSTANT)
 
 public:
-    static const int defaultEntityWidth = 32;
-    static const int defaultEntityHeight = 32;
+    static const int defaultEntityWidth = 22;
+    static const int defaultEntityHeight = 22;
     static const int enemyCount = 18;
     static const int npcBaseSpeed = 4;
     static const int projectileSpeed = 10;

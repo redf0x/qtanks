@@ -25,12 +25,7 @@ typedef QList<Entity*> ObjectList;
 class GameScene : public QObject {
     Q_OBJECT
 
-    static const int columns = 26;
-    static const int rows = 26;
-
     /* battle field state flags and properties */
-    Q_PROPERTY(int columns READ getColumns CONSTANT)
-    Q_PROPERTY(int rows READ getRows CONSTANT)
     Q_PROPERTY(bool frozen READ getFrozen WRITE setFrozen NOTIFY frozenChanged)
 
     /* counters/bindings to HUD */
@@ -86,8 +81,6 @@ public:
 
     ~GameScene();
 
-    int getColumns () const;
-    int getRows () const;
     bool getFrozen () const;
 
     QQmlListProperty<Block> getBmap ();

@@ -126,7 +126,7 @@ Item {
     }
 
     function move(direction) {
-        var scale = Math.floor((battleArea.width / battleField.columns) / 4);
+        var scale = Math.floor((battleArea.width / Globals.fieldCellColumns) / 4);
 
         if (modelData.distance == 0)
             return;
