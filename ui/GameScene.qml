@@ -45,4 +45,7 @@ Rectangle {
     HUD {
         anchors { left: battleArea.right; leftMargin: 16; }
     }
+
+    onHeightChanged: { battleArea.heightChanged(height); }
+    onWidthChanged: { battleArea.widthChanged(width); }
 }

@@ -21,4 +21,14 @@ Window {
     function contentRequest(contentSrc) {
         contentLoader.source = contentSrc;
     }
+
+    onWidthChanged: {
+        currentContent.width = width;
+        console.log(width);
+    }
+
+    onHeightChanged: {
+        currentContent.height = height;
+        console.log(height)
+    }
 }
