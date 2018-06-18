@@ -17,6 +17,8 @@ class Globals : public QObject {
     Q_PROPERTY(int projectileSpeed MEMBER projectileSpeed CONSTANT)
     Q_PROPERTY(int fieldCellRows MEMBER fieldCellRows CONSTANT)
     Q_PROPERTY(int fieldCellColumns MEMBER fieldCellColumns CONSTANT)
+    Q_PROPERTY(int defaultWindowWidth MEMBER defaultWindowWidth CONSTANT)
+    Q_PROPERTY(int defaultWindowHeight MEMBER defaultWindowHeight CONSTANT)
 
 public:
     static const int defaultEntityWidth = 22;
@@ -26,6 +28,8 @@ public:
     static const int projectileSpeed = 10;
     static const int fieldCellRows = 26;
     static const int fieldCellColumns = 26;
+    static const int defaultWindowWidth = 720;
+    static const int defaultWindowHeight = 653;
 
     enum UserAction { EXIT, START, SETTINGS, HISCORE, CANCEL_GAME, GAMEOVER };
     Q_ENUMS(UserAction)

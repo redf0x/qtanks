@@ -35,15 +35,14 @@ int main (int argc, char** argv)
 {
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
-    Loader* loader = setup_main_window (&engine);
 
     qmlRegisterSingletonType<Globals>("Tanks.Globals", 0, 1, "Globals", globals_provider);
     qmlRegisterType<Entity>();
     qmlRegisterType<Block>();
     qmlRegisterType<ActiveItem>("Tanks.ActiveItem", 0, 1, "ActiveItem");
 
+    auto loader = setup_main_window (&engine);
     loader->titleScreen ();
-
     app.exec ();
 
     return 0;
