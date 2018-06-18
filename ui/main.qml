@@ -24,11 +24,9 @@ Window {
 
     onWidthChanged: {
         currentContent.width = width;
-        console.log(width);
     }
 
     onHeightChanged: {
         currentContent.height = height;
-        console.log(height)
     }
 }
