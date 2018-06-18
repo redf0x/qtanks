@@ -279,10 +279,8 @@ void GameScene::thaw (ActorList& l)
 
 void GameScene::setFrozenState (ActorList& l, bool s)
 {
-    QList<ActiveItem*>::iterator i;
-
-    for (i = l.begin (); i != l.end (); i++)
-        (*i)->setFrozen (s);
+    for (auto& i : l)
+        i->setFrozen (s);
 }
 
 void GameScene::setFrozen (bool p)
@@ -328,13 +326,13 @@ QList<ActiveItem*> GameScene::getIntersectionsList (ActiveItem* a, ActorList& li
             r1.translate (-a->width () / 2, 0);
     }
 
-    for (ActorList::iterator i = list.begin (); i != list.end (); i++)
-        if (*i != a) {
+    for (auto& i : list)
+        if (i != a) {
 
-            r2 = QRect((*i)->x (), (*i)->y (), (*i)->width (), (*i)->height ());
+            r2 = QRect(i->x (), i->y (), i->width (), i->height ());
 
-            if (r1.intersects (r2) && (*i)->isAlive ())
-                rlist << (*i);
+            if (r1.intersects (r2) && i->isAlive ())
+                rlist << i;
         }
 
     return rlist;
@@ -358,22 +356,22 @@ ObjectList GameScene::checkImmediateCollisions(ActiveItem* a, BlockList& list)
     c = checkImmediateCollisions (a);
 
     if (!list.empty ())
-        for (BlockList::iterator i = list.begin (); i != list.end (); i++) {
+        for (auto& i : list) {
             QRect r1(a->x (), a->y (), a->width (), a->height ()),
-                    r2((*i)->x (), (*i)->y (), (*i)->width (), (*i)->height ());
+                    r2(i->x (), i->y (), i->width (), i->height ());
 
             if (r1.intersects (r2))
-                collisions << dynamic_cast<Entity*>(*i);
+                collisions << dynamic_cast<Entity*>(i);
         }
 
     if (!c.empty ())
-        for (ActorList::iterator i = c.begin (); i != c.end (); i++)
-            collisions << dynamic_cast<Entity*>(*i);
+        for (auto& i : c)
+            collisions << dynamic_cast<Entity*>(i);
 
     return collisions;
 }
 
-void GameScene::fireProjectile (ActiveItem * a)
+void GameScene::fireProjectile (ActiveItem* a)
 {
     ActiveItem s, *p;
     QRect r(a->x (), a->y (), a->width (), a->height ());
