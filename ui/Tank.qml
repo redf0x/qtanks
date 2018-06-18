@@ -128,7 +128,7 @@ Item {
     function move(direction) {
         var scale = Math.floor((battleArea.width / Globals.fieldCellColumns) / 4);
 
-        if (modelData.distance == 0)
+        if (modelData.distance === 0)
             return;
 
         switch(direction) {
@@ -153,26 +153,26 @@ Item {
     }
 
     Keys.onPressed: {
-        if ((event.key == controller.keyWest || event.key == controller.keyEast ||
-             event.key == controller.keySouth || event.key == controller.keyNorth ||
-             event.key == controller.keyFire) && battleField.frozen)
+        if ((event.key === controller.keyWest || event.key === controller.keyEast ||
+             event.key === controller.keySouth || event.key === controller.keyNorth ||
+             event.key === controller.keyFire) && battleField.frozen)
             return;
 
         switch (event.key) {
             case controller.keyWest:
-                (modelData.direction == ActiveItem.WEST) ? move(ActiveItem.WEST) : turn(ActiveItem.WEST);
+                (modelData.direction === ActiveItem.WEST) ? move(ActiveItem.WEST) : turn(ActiveItem.WEST);
                 break;
 
             case controller.keyEast:
-                (modelData.direction == ActiveItem.EAST) ? move(ActiveItem.EAST) : turn(ActiveItem.EAST);
+                (modelData.direction === ActiveItem.EAST) ? move(ActiveItem.EAST) : turn(ActiveItem.EAST);
                 break;
 
             case controller.keySouth:
-                (modelData.direction == ActiveItem.SOUTH) ? move(ActiveItem.SOUTH) : turn(ActiveItem.SOUTH);
+                (modelData.direction === ActiveItem.SOUTH) ? move(ActiveItem.SOUTH) : turn(ActiveItem.SOUTH);
                 break;
 
             case controller.keyNorth:
-                (modelData.direction == ActiveItem.NORTH) ? move(ActiveItem.NORTH) : turn(ActiveItem.NORTH);
+                (modelData.direction === ActiveItem.NORTH) ? move(ActiveItem.NORTH) : turn(ActiveItem.NORTH);
                 break;
 
             case controller.keyPause:

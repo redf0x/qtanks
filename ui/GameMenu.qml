@@ -38,9 +38,9 @@ ListView {
         }
 
         Keys.onPressed: {
-            if (event.key == Qt.Key_Up) {
+            if (event.key === Qt.Key_Up) {
                 container.decrementCurrentIndex ();
-            } else if (event.key == Qt.Key_Down) {
+            } else if (event.key === Qt.Key_Down) {
                 container.incrementCurrentIndex ();
             }
 
