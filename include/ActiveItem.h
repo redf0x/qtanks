@@ -20,7 +20,8 @@ public:
     Q_PROPERTY(bool fired READ getFired WRITE setFired NOTIFY firedChanged)
     Q_PROPERTY(bool alive READ isAlive WRITE setAlive NOTIFY aliveChanged)
 
-    explicit ActiveItem(QObject* parent = 0, int rotation = 0, ActiveItemType type = NONE, UnitController* u = nullptr);
+    explicit ActiveItem(QObject* parent = nullptr, int rotation = 0,
+                        ActiveItemType type = NONE, UnitController* u = nullptr);
 
     virtual QString getTextureSource () const;
     Direction getDirection () const;

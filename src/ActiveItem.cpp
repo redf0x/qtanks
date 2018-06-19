@@ -1,8 +1,9 @@
 #include "ActiveItem.h"
 
-ActiveItem::ActiveItem(QObject* parent, int rotation, ActiveItem::ActiveItemType type, UnitController* u) :
-    Entity(parent), _type(type), _uc(u), _distance(0), _frozen(false), texOverriden(false), _fired(false),
-    _alive(true)
+ActiveItem::ActiveItem(QObject* parent, int rotation,
+                       ActiveItem::ActiveItemType type, UnitController* u) :
+    Entity(parent), _type(type), _uc(u), _distance(0), _frozen(false),
+    texOverriden(false), _fired(false), _alive(true)
 {
     setRotation (rotation);
     setDirection (Direction::SOUTH);
@@ -73,9 +74,9 @@ int ActiveItem::getWidth () const
 
 Entity* ActiveItem::createObject (QObject* parent, char type, QPoint pos)
 {
-    ActiveItem* z = new ActiveItem(parent, 0, (ActiveItemType)type);
+   auto z = new ActiveItem(parent, 0, static_cast<ActiveItemType>(type));
 
-    if (z != 0) {
+    if (z != nullptr) {
         z->setX (pos.x ());
         z->setY (pos.y ());
     }
