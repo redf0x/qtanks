@@ -28,10 +28,11 @@ class KeyAssignments : public QObject {
     Q_PROPERTY(Qt::Key keyPause READ keyPause WRITE setKeyPause)
 
 public:
-    explicit KeyAssignments(QObject* parent = 0) : QObject(parent), _keyNorth(Qt::Key_Up), _keySouth(Qt::Key_Down),
-        _keyEast(Qt::Key_Right), _keyWest(Qt::Key_Left), _keyFire(Qt::Key_Control), _keyPause(Qt::Key_Space),
+    explicit KeyAssignments(QObject* parent = nullptr) : QObject(parent),
+        _keyNorth(Qt::Key_Up), _keySouth(Qt::Key_Down), _keyEast(Qt::Key_Right),
+        _keyWest(Qt::Key_Left), _keyFire(Qt::Key_Control), _keyPause(Qt::Key_Space),
         _file("") { }
-    KeyAssignments(const QString& fileName, QObject* parent = 0);
+    KeyAssignments(const QString& fileName, QObject* parent = nullptr);
 
     void load (const QString& fileName);
     void store (const QString& fileName);

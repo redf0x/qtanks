@@ -10,7 +10,8 @@ public:
     }
 };
 
-KeyAssignments::KeyAssignments(const QString& fileName, QObject* parent) : QObject(parent), _file(fileName)
+KeyAssignments::KeyAssignments(const QString& fileName, QObject* parent) :
+    QObject(parent), _file(fileName)
 {
     load (fileName);
 }
@@ -96,13 +97,13 @@ Qt::Key KeyAssignments::toKey (QString const& str)
     seq = QKeySequence(s);
 
     if (seq.count () != 0)
-        switch ((Qt::Key)(seq [0])) {
+        switch (static_cast<Qt::Key>(seq [0])) {
             case Qt::Key_unknown:
                 key = unconventionalKey (s);
                 break;
 
             default:
-                key = (Qt::Key)(seq [0]);
+                key = static_cast<Qt::Key>(seq [0]);
         }
 
     return key;

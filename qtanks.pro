@@ -13,12 +13,12 @@ SOURCES += \
     src/GameScene.cpp \
     src/MapBuilder.cpp \
     src/ActiveItem.cpp \
-    src/KeyAssignmets.cpp \
     src/NpcController.cpp \
     src/Loader.cpp \
     src/ProjectileController.cpp \
     src/PlayerController.cpp \
-    src/UnitController.cpp
+    src/UnitController.cpp \
+    src/KeyAssignments.cpp
 
 HEADERS += \
     include/common.h \
