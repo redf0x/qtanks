@@ -15,7 +15,6 @@ GameScene::~GameScene()
     _npcItems.clear ();
     qDeleteAll (_projectiles);
     _projectiles.clear ();
-    delete _tree;
 }
 
 QRect GameScene::mapRect (QRect& source, MappingType mapping)
@@ -34,7 +33,6 @@ QRect GameScene::mapRect (QRect& source, MappingType mapping)
             /* FIXME: implement Physical → Logical conversion with alignment on the boundary
              * of the nearest cell */
             throw NotImplemented("GameScene::mapRect(FROM_PHYSICAL)");
-            break;
     }
 
     return result;
@@ -76,16 +74,16 @@ QQmlListProperty<ActiveItem> GameScene::getProjectiles ()
     return QQmlListProperty<ActiveItem>(this, _projectiles);
 }
 
-ActiveItem* GameScene::spawnItem (QPoint pos, ActiveItem::ActiveItemType type, ActorList& list, QString id, UnitController* ctl, QString texOverride, AttrList* attrs)
+ActiveItem* GameScene::spawnItem (QPoint pos, ActiveItem::ActiveItemType type, ActorList& list,
+                                  QString id, UnitController* ctl, QString texOverride,
+                                  AttrList* attrs)
 {
-    ActiveItem s, *p;
-    QRect realLoc;
-    Attribute attr;
+    ActiveItem s;
 
-    realLoc = QRect(pos.x (), pos.y (), 2, 2);
+    auto realLoc = QRect(pos.x (), pos.y (), 2, 2);
     realLoc = mapRect (realLoc, MappingType::FROM_LOGICAL);
 
-    p = dynamic_cast<ActiveItem*>(s.create (this, type, QPoint(realLoc.x (), realLoc.y ())));
+    auto p = dynamic_cast<ActiveItem*>(s.create (this, type, QPoint(realLoc.x (), realLoc.y ())));
     p->setWidth (realLoc.width ()); p->setHeight (realLoc.height ());
     p->setObjectId (id);
     p->setObjectName (p->getObjectId ());
@@ -97,13 +95,13 @@ ActiveItem* GameScene::spawnItem (QPoint pos, ActiveItem::ActiveItemType type, A
         p->setTextureSource (texOverride);
     }
 
-    attr = Attribute("counter", QVariant::fromValue (0), EXPIRY_NEVER, "respawn");
+    auto attr = Attribute("counter", QVariant::fromValue (0), EXPIRY_NEVER, "respawn");
     p->addAttribute (attr);
 
     if (attrs) {
         if (!attrs->empty ())
-            for (AttrList::iterator i = attrs->begin (); i != attrs->end (); i++)
-                p->addAttribute ((*i));
+            for (auto i : *attrs /* AttrList::iterator i = attrs->begin (); i != attrs->end (); i++ */)
+                p->addAttribute (i);
     }
 
     list << p;
@@ -115,7 +113,7 @@ ActiveItem* GameScene::spawnItem (QPoint pos, ActiveItem::ActiveItemType type, A
 void GameScene::spawnPlayerItem (QPoint pos, QString texOverride)
 {
     spawnItem (pos, ActiveItem::ActiveItemType::PLAYER, _playableItems,
-                               QString("player"), _playerCtl, texOverride, nullptr);
+               QString("player"), _playerCtl.get (), texOverride, nullptr);
     emit playableItemsChanged(getPlayableItems ());
 }
 
@@ -123,13 +121,12 @@ void GameScene::spawnNpcItem (QPoint pos, QString texOverride)
 {
     ActiveItem* p = spawnItem (pos, ActiveItem::ActiveItemType::NPC, _npcItems,
                                QString("npc@%1%2").arg (pos.x ()).arg (pos.y ()),
-                               _botCtl, texOverride, nullptr);
-    Attribute attr;
+                               _botCtl.get (), texOverride, nullptr);
     int initialValue = static_cast<int>(
                 FIRE_AT_MOST + (FIRE_AT_LEAST - FIRE_AT_MOST + 1) *
                 (rand () / (RAND_MAX + 1.0)));
 
-    attr = Attribute("counter", QVariant::fromValue (initialValue), EXPIRY_NEVER, "fire");
+    auto attr = Attribute("counter", QVariant::fromValue (initialValue), EXPIRY_NEVER, "fire");
     p->addAttribute (attr);
 
     emit npcItemsChanged(getNpcItems ());
@@ -180,17 +177,16 @@ void GameScene::initialize (QString level)
 
 KeyAssignments* GameScene::getControllerConfig () const
 {
-    return _keyConfig;
+    return _keyConfig.get ();
 }
 
 void GameScene::buildObjectsRTree ()
 {
-    _tree = new ObjectRTree();
+    _tree = std::make_unique<ObjectRTree>();
 
     if (!_bmap.isEmpty ()) {
         for (auto& b : _bmap) {
             ObjectRTreeBox item(b->x (), b->y (), b->width (), b->height ());
-
             _tree->Insert (item.min, item.max, b);
         }
     }
@@ -230,8 +226,7 @@ bool scanArea (Entity* e, void* arg)
 
 Block* GameScene::scanDirection (QRect& target, ActiveItem::Direction direction)
 {
-    QRect scanZone(target);
-    ObjectRTreeBox box;
+    auto scanZone(target);
     ObjectRTreeCtx ctx;
 
     switch (direction) {
@@ -240,18 +235,23 @@ Block* GameScene::scanDirection (QRect& target, ActiveItem::Direction direction)
             break;
 
         case ActiveItem::Direction::SOUTH:
-            scanZone.adjust (3, scanZone.height (), -3, getBattleFieldHeight () - (scanZone.y () + scanZone.height ()));
+            scanZone.adjust (3, scanZone.height (), -3,
+                             getBattleFieldHeight () -
+                             (scanZone.y () + scanZone.height ()));
             break;
 
         case ActiveItem::Direction::EAST:
-            scanZone.adjust (scanZone.height (), 3, getBattleFieldWidth () - (scanZone.x () + scanZone.width ()), -3);
+            scanZone.adjust (scanZone.height (), 3,
+                             getBattleFieldWidth () -
+                             (scanZone.x () + scanZone.width ()), -3);
             break;
 
         case ActiveItem::Direction::WEST:
             scanZone.adjust (-scanZone.x (), 3, -scanZone.width (), -3);
     }
 
-    box = ObjectRTreeBox(scanZone.x (), scanZone.y (), scanZone.width (), scanZone.height ());
+    auto box = ObjectRTreeBox(scanZone.x (), scanZone.y (),
+                              scanZone.width (), scanZone.height ());
     ctx.nearestObject = std::numeric_limits<int>::max ();
     ctx.target = target.center ();
     ctx.object = nullptr;
@@ -354,10 +354,8 @@ ActorList GameScene::checkImmediateCollisions (ActiveItem* a)
 
 ObjectList GameScene::checkImmediateCollisions(ActiveItem* a, BlockList& list)
 {
-    ActorList c;
     ObjectList collisions;
-
-    c = checkImmediateCollisions (a);
+    auto c = checkImmediateCollisions (a);
 
     if (!list.empty ())
         for (auto& i : list) {
@@ -418,7 +416,7 @@ void GameScene::fireProjectile (ActiveItem* a)
     p->setFrozen (true);
     QObject::connect (&_timer, SIGNAL(timeout()), p, SLOT(tick()));
     QObject::connect (p, SIGNAL(aliveChanged(bool)), this, SLOT(cleanup()));
-    p->setUnitController (_projectileCtl);
+    p->setUnitController (_projectileCtl.get ());
     p->setDirection (a->getDirection ());
     p->setRotation (a->getRotation ());
     p->setObjectId (QString("projectile%1").arg (QDateTime::currentMSecsSinceEpoch ()));
@@ -443,25 +441,23 @@ void GameScene::removeProjectile (ActiveItem *a)
 
 void GameScene::cleanup ()
 {
-    QObject* x = sender ();
-    Entity* obj = qobject_cast<Entity*>(x);
+    auto x = sender ();
+    auto obj = qobject_cast<Entity*>(x);
 
     if (obj->getObjectId ().startsWith ("projectile")) {
-        ActiveItem* projectile = qobject_cast<ActiveItem*>(obj);
+        auto projectile = qobject_cast<ActiveItem*>(obj);
         removeProjectile (projectile);
     }
 }
 
 void GameScene::removeBlock (Block *b)
 {
-    ObjectRTreeBox item;
-
     if (_bmap.empty ())
         return;
 
     _bmap.removeOne (b);
     emit bmapChanged(getBmap ());
-    item = ObjectRTreeBox(b->x (), b->y (), b->width (), b->height ());
+    auto item = ObjectRTreeBox(b->x (), b->y (), b->width (), b->height ());
     _tree->Remove (item.min, item.max, b);
     delete b;
 }

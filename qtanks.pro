@@ -4,7 +4,7 @@ DESTDIR = build
 OBJECTS_DIR = build
 INCLUDEPATH += include
 QT += qml quick quickwidgets widgets
-CONFIG += qt debug warn_on
+CONFIG += qt debug warn_on c++14
 
 SOURCES += \
     src/main.cpp \

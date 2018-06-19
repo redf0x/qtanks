@@ -66,17 +66,18 @@ class GameScene : public QObject {
 public:
     typedef RTree<Entity*, int, 2, float, 512> ObjectRTree;
 
-    explicit GameScene(QQmlApplicationEngine* engine, QObject* parent = 0) : QObject(parent), _frozen(true),
-        _enemyCounter(Globals::enemyCount), _stage(1), _playerCounter(1) {
-        QQmlContext* ctx = engine->rootContext ();
+    explicit GameScene(QQmlApplicationEngine* engine, QObject* parent = nullptr) :
+        QObject(parent), _frozen(true), _enemyCounter(Globals::enemyCount),
+        _stage(1), _playerCounter(1) {
+        auto ctx = engine->rootContext ();
 
-        _keyConfig = new KeyAssignments(/* QString("keys.conf"), */ this);
+        _keyConfig = std::make_unique<KeyAssignments>(/* QString("keys.conf"), */ this);
         _keyConfig->dump ();
-        _playerCtl = new PlayerController(this);
-        _botCtl = new NpcController(this);
-        _projectileCtl = new ProjectileController(this);
+        _playerCtl = std::make_unique<PlayerController>(this);
+        _botCtl = std::make_unique<NpcController>(this);
+        _projectileCtl = std::make_unique<ProjectileController>(this);
         ctx->setContextProperty ("battleField", this);
-        ctx->setContextProperty ("controller", _keyConfig);
+        ctx->setContextProperty ("controller", _keyConfig.get ());
     }
 
     ~GameScene();
@@ -143,12 +144,13 @@ private:
     ActorList _npcItems;
     ActorList _projectiles;
 
-    UnitController* _playerCtl;
-    UnitController* _botCtl;
-    UnitController* _projectileCtl;
+    std::unique_ptr<UnitController> _playerCtl;
+    std::unique_ptr<UnitController> _botCtl;
+    std::unique_ptr<UnitController> _projectileCtl;
 
-    KeyAssignments* _keyConfig;
-    ObjectRTree* _tree;
+    std::unique_ptr<KeyAssignments> _keyConfig;
+    std::unique_ptr<ObjectRTree> _tree;
+
     QPoint _fieldSize;
     Cell _cell;
     QTimer _timer;
