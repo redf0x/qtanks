@@ -125,7 +125,9 @@ void GameScene::spawnNpcItem (QPoint pos, QString texOverride)
                                QString("npc@%1%2").arg (pos.x ()).arg (pos.y ()),
                                _botCtl, texOverride, nullptr);
     Attribute attr;
-    int initialValue = FIRE_AT_MOST + (int)((FIRE_AT_LEAST - FIRE_AT_MOST + 1) * (rand () / (RAND_MAX + 1.0)));
+    int initialValue = static_cast<int>(
+                FIRE_AT_MOST + (FIRE_AT_LEAST - FIRE_AT_MOST + 1) *
+                (rand () / (RAND_MAX + 1.0)));
 
     attr = Attribute("counter", QVariant::fromValue (initialValue), EXPIRY_NEVER, "fire");
     p->addAttribute (attr);
@@ -206,7 +208,7 @@ int GameScene::getBattleFieldHeight () const
 
 bool scanArea (Entity* e, void* arg)
 {
-    GameScene::ObjectRTreeCtx* ctx = (GameScene::ObjectRTreeCtx*)arg;
+    GameScene::ObjectRTreeCtx* ctx = reinterpret_cast<GameScene::ObjectRTreeCtx*>(arg);
     QRect r(e->x (), e->y (), e->width (), e->height ());
     QPoint p = r.center ();
     int distance = 0;
@@ -214,7 +216,9 @@ bool scanArea (Entity* e, void* arg)
     if (!e->isSolid ())
         return true;
 
-    distance = sqrt (pow (abs (p.x () - ctx->target.x ()), 2) + pow (abs (p.y () - ctx->target.y ()), 2));
+    distance = static_cast<decltype(distance)>(
+                sqrt (pow (abs (p.x () - ctx->target.x ()), 2) +
+                      pow (abs (p.y () - ctx->target.y ()), 2)));
 
     if (distance < ctx->nearestObject) {
         ctx->nearestObject = distance;
@@ -373,7 +377,7 @@ ObjectList GameScene::checkImmediateCollisions(ActiveItem* a, BlockList& list)
 
 void GameScene::fireProjectile (ActiveItem* a)
 {
-    ActiveItem s, *p;
+    ActiveItem s;
     QRect r(a->x (), a->y (), a->width (), a->height ());
     int sx = 0, sy = 0;
 
@@ -406,8 +410,10 @@ void GameScene::fireProjectile (ActiveItem* a)
             sy = r.height () / 2 - 4;
     }
 
-    p = dynamic_cast<ActiveItem*>(s.create (this, ActiveItem::ActiveItemType::PROJECTILE,
-                                            QPoint(r.x () + sx, r.y () + sy)));
+    auto p = dynamic_cast<ActiveItem*>(
+                s.create (this, ActiveItem::ActiveItemType::PROJECTILE,
+                          QPoint(r.x () + sx, r.y () + sy)));
+
     p->setWidth (_cell.width / 2); p->setHeight (_cell.height / 2);
     p->setFrozen (true);
     QObject::connect (&_timer, SIGNAL(timeout()), p, SLOT(tick()));
@@ -467,8 +473,6 @@ int GameScene::getBlocksCount () const
 
 void GameScene::respawn (ActiveItem* a)
 {
-    QPoint pt;
-
     if (checkLoseCondition (a)) {   /* killed item was the base, whoever did this, just ended the game */
         finalize ();
         emit loseCondition();
@@ -503,11 +507,12 @@ void GameScene::respawn (ActiveItem* a)
 
         delete v;
     } else {    /* otherwise schedule respawn in ((RESPAWN_TIMEOUT * 10) / 1000) secs */
-        pt = _spawners [a->getObjectId ()];
+        auto& pt = _spawners [a->getObjectId ()];
+
         a->setX (pt.x ());
         a->setY (pt.y ());
 
-        Attribute& attr = a->getAttribute ("counter", "respawn");
+        auto& attr = a->getAttribute ("counter", "respawn");
         attr.setValue (QVariant::fromValue (RESPAWN_TIMEOUT));
         qDebug() << a->getObjectId () << "scheduled to respawn in " << RESPAWN_TIMEOUT << "ticks";
         a->setFrozen (false);
