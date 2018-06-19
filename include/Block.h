@@ -13,7 +13,8 @@ public:
     Q_PROPERTY(BlockType blockType READ getBlockType CONSTANT)
     Q_PROPERTY(bool solid READ isSolid CONSTANT)
 
-    Block(QObject* parent = 0, int rotation = 0, bool solid = false, BlockType type = VOID);
+    Block(QObject* parent = nullptr, int rotation = 0, bool solid = false,
+          BlockType type = VOID);
 
     virtual QString getTextureSource () const;
     BlockType getBlockType () const;

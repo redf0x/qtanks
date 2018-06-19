@@ -1,6 +1,7 @@
 #include "Block.h"
 
-Block::Block(QObject* parent, int rotation, bool solid, BlockType type) : Entity(parent), _type(type)
+Block::Block(QObject* parent, int rotation, bool solid, BlockType type) :
+    Entity(parent), _type(type)
 {
     setSolid (solid);
     setRotation (rotation);
@@ -30,6 +31,7 @@ QString Block::getTextureSource () const
 
         case IRON:
             name = "iron";
+            break;
 
         case VOID:
             return name;
@@ -40,7 +42,7 @@ QString Block::getTextureSource () const
 
 Entity* Block::createObject (QObject* parent, char sign, QPoint pos)
 {
-    Block* e;
+    Block* e{};
 
     switch (_tolower(sign)) {
         case 'b':
