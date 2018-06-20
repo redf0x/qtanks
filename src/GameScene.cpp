@@ -7,14 +7,15 @@
 
 GameScene::~GameScene()
 {
-    qDeleteAll (_bmap);
-    _bmap.clear ();
-    qDeleteAll (_playableItems);
-    _playableItems.clear ();
-    qDeleteAll (_npcItems);
-    _npcItems.clear ();
-    qDeleteAll (_projectiles);
-    _projectiles.clear ();
+    disconnect ();
+//    qDeleteAll (_bmap);
+//    _bmap.clear ();
+//    qDeleteAll (_playableItems);
+//    _playableItems.clear ();
+//    qDeleteAll (_npcItems);
+//    _npcItems.clear ();
+//    qDeleteAll (_projectiles);
+//    _projectiles.clear ();
 }
 
 QRect GameScene::mapRect (QRect& source, MappingType mapping)
@@ -139,17 +140,17 @@ void GameScene::reset ()
     BlockList tmp0(_bmap);
 
     _bmap.clear ();
-    qDeleteAll (tmp0);
+    // qDeleteAll (tmp0);
 
     ActorList tmp1(_playableItems);
 
     _playableItems.clear ();
-    qDeleteAll (tmp1);
+    // qDeleteAll (tmp1);
 
    ActorList tmp2(_projectiles);
 
     _projectiles.clear ();
-    qDeleteAll (tmp2);
+    // qDeleteAll (tmp2);
 
     _spawners.clear ();
     _enemyCounter = Globals::enemyCount;
@@ -434,7 +435,6 @@ void GameScene::removeProjectile (ActiveItem *a)
         a->disconnect (&_timer, SIGNAL(timeout()), a, SLOT(tick()));
         disconnect (a, SIGNAL(aliveChanged(bool)), this, SLOT(cleanup()));
         _projectiles.removeOne (a);
-        a->deleteLater ();
         emit projectilesChanged(getProjectiles ());
     }
 }
@@ -500,8 +500,6 @@ void GameScene::respawn (ActiveItem* a)
         emit npcItemsChanged(getNpcItems ());
         _spawners.remove (v->getObjectId ());
         qDebug() << "entity" << v->getObjectId () << "eliminated, not respawning it anymore";
-
-        delete v;
     } else {    /* otherwise schedule respawn in ((RESPAWN_TIMEOUT * 10) / 1000) secs */
         auto& pt = _spawners [a->getObjectId ()];
 
@@ -523,6 +521,7 @@ void GameScene::respawn (ActiveItem* a)
 
 void GameScene::finalize ()
 {
+    setFrozen (true);
     _timer.stop ();
     QThread::msleep (115);
 }

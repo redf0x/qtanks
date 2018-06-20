@@ -9,8 +9,6 @@ Loader::Loader(QObject* parent) : QObject(parent)
 
 Loader::~Loader()
 {
-    if (game)
-        delete game;
 }
 
 void Loader::titleScreen ()
@@ -76,7 +74,5 @@ void Loader::userAction (int c)
 void Loader::terminateGame()
 {
     game->reset ();
-    game->disconnect ();
-    delete game;
-    game = 0;
+    game->deleteLater ();
 }
