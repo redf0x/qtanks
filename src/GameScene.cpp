@@ -436,6 +436,7 @@ void GameScene::removeProjectile (ActiveItem *a)
         disconnect (a, SIGNAL(aliveChanged(bool)), this, SLOT(cleanup()));
         _projectiles.removeOne (a);
         emit projectilesChanged(getProjectiles ());
+        a->deleteLater ();
     }
 }
 
